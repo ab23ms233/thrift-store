@@ -1,0 +1,25 @@
+.product-card {
+    background: white;
+    border: 1px solid black;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.product-img {
+    width: 100%;
+	aspect-ratio: 1;
+    object-fit: cover;
+}
+
+.product-info {
+    padding: 16px;
+}
+
+.product-price {
+    font-weight: 600;
+}
+
+.product-description {
+    color: #666;
+}

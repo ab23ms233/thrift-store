@@ -1,0 +1,21 @@
+.category-card {
+    min-width: 120px;
+    min-height: 72px;
+    padding: 12px 18px;
+    border: 1px solid #333;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+}
+
+.category-card.is-active {
+    color: white;
+    background: #333;
+}
+
+.category-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    margin-bottom: 2rem;
+}
