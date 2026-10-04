@@ -8,7 +8,8 @@ const products = [
         postedOn: "28/09/2026",
         owner: "Arya Basak",
         ownerId: "user001",
-        category: "Stationery"
+        category: "Stationery",
+        status: "AVAILABLE"
     },
     {
         id: 2,
@@ -19,7 +20,8 @@ const products = [
         postedOn: "28/09/2026",
         owner: "Arya Basak",
         ownerId: "user001",
-        category: "Textbook"
+        category: "Textbook",
+        status: "AVAILABLE"
     },
     {
         id: 3,
@@ -30,7 +32,8 @@ const products = [
         postedOn: "28/09/2026",
         owner: "Ayush Basak",
         ownerId: "user002",
-        category: "Electronics"
+        category: "Electronics",
+        status: "AVAILABLE"
     }
 ];
 

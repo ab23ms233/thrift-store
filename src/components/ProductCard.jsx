@@ -1,25 +1,21 @@
 import "./ProductCard.css"
 
-function ProductCard({
-    title,
-    description,
-    price,
-    image,
-    onClick
-}) {
+function ProductCard({product, onClick}) {
     return (
         <div className="product-card" onClick={onClick}>
-            <img src={image} alt={title} className="product-img" />
+            <img src={product.image} alt={product.title} className="product-img" />
 
             <div className="product-info">
-                <h2 className="product-title">{title}</h2>
+                <h2 className="product-title">{product.title}</h2>
 
                 <p className="product-price">
-                    ₹{price}
+                    ₹{product.price}
                 </p>
 
+                <p>{product.status}</p>
+
                 <p className="product-desc">
-                    {description}
+                    {product.description}
                 </p>
             </div>
         </div>

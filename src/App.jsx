@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 import "./App.css"
@@ -9,30 +9,67 @@ import "./components/Navbar.css"
 
 import HomePage from "./pages/HomePage.jsx";
 import SellProductPage from "./pages/SellProductPage.jsx";
+import { EditProductRoute } from "./pages/EditProductPage.jsx";
 
-import products from "./data/products.js";
+import fakeProducts from "./data/products.js";
 import MyListings from "./pages/MyListings.jsx";
 
 function App() {
 	const [searchQuery, setSearchQuery] = useState("")
-	const [productList, setProductList] = useState(products)
+	const [products, setProductList] = useState(() => {
+		const products = localStorage.getItem("products")
+
+		return products
+		? JSON.parse(products)
+		: fakeProducts
+	})
 
 	const currentUser = {
 		id: "user001",
 		name: "Arya Basak",
 		email: "aryabasak6@gmail.com"
 	}
-	const isLoggedIn = currentUser?true:false
+	const isLoggedIn = currentUser ? true : false
 
-	function handleListProduct(product) {
+	function listProduct(product) {
 		setProductList(prevProducts => 
 			[...prevProducts, product]
 		)
 	}
 
-	function editListProduct(product) {
-
+	function editProduct(updatedProduct) {
+		setProductList(prevProducts =>
+			prevProducts.map(product => 
+				product.id === updatedProduct.id
+				? updatedProduct
+				: product
+			)
+		)
 	}
+
+	function deleteProduct(product) {
+		setProductList(prevProducts =>
+			prevProducts.filter(item => item.id !== product.id)
+		)
+	}
+
+	function onProductSold(soldProduct) {
+		setProductList(prevProducts =>
+			prevProducts.map(
+				product =>
+				product.id === soldProduct.id
+				? {...product, status: "SOLD"}
+				: product
+			)
+		)
+	}
+
+	useEffect(() => {
+		localStorage.setItem(
+			"products",
+			JSON.stringify(products)
+		)
+	}, [products])
 
 	return (
 		<BrowserRouter>
@@ -47,7 +84,7 @@ function App() {
 						path="/" 
 						element={
 							<HomePage
-								products={productList}
+								products={products}
 								searchQuery={searchQuery}
 							/>
 						} 
@@ -57,7 +94,8 @@ function App() {
 						path="/sell"
 						element={
 							<SellProductPage 
-								onListProduct={handleListProduct}
+								onListProduct={listProduct}
+								currentUser={currentUser}
 							/>
 						}
 					/>
@@ -66,8 +104,10 @@ function App() {
 						path="/products/:productId"
 						element={
 							<ProductRoute
-								products={productList}
+								products={products}
 								currentUser={currentUser}
+								onDelete={deleteProduct}
+								onProductSold={onProductSold}
 							/>
 						}
 					/>
@@ -76,8 +116,18 @@ function App() {
 						path="/my-listings"
 						element={
 							<MyListings
-								products={productList}
+								products={products}
 								currentUser={currentUser} />
+						}
+					/>
+
+					<Route
+						path="/products/:productId/edit"
+						element={
+							<EditProductRoute
+								products={products}
+								onEditProduct={editProduct}
+							/>
 						}
 					/>
 				</Routes>

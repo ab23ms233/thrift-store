@@ -3,25 +3,11 @@ import categories from "../data/categories.js"
 import { useState } from "react"
 
 function ProductForm({ initialProduct, onSubmit, submitLabel }) {
-    let title, setTitle
-    let description, setDescription
-    let price, setPrice
-    let category, setCategory
-    let imageFile, setImageFile
-
-    if (!initialProduct) {
-        [title, setTitle] = useState("")
-        [description, setDescription] = useState("");
-        [price, setPrice] = useState("");
-        [category, setCategory] = useState("");
-        [imageFile, setImageFile] = useState(null);
-    } else {
-        [title, setTitle] = useState(initialProduct.title)
-        [description, setDescription] = useState(initialProduct.description);
-        [price, setPrice] = useState(initialProduct.price);
-        [category, setCategory] = useState(initialProduct.category);
-        [imageFile, setImageFile] = useState(initialProduct.price);
-    }
+    const [title, setTitle] = useState(initialProduct?.title ?? "");
+    const [description, setDescription] = useState(initialProduct?.description ?? "");
+    const [price, setPrice] = useState(initialProduct?.price ?? "");
+    const [category, setCategory] = useState(initialProduct?.category ?? "");
+    const [imageFile, setImageFile] = useState(null);
 
     function handleSubmitForm(event) {
         event.preventDefault()

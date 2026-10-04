@@ -44,7 +44,14 @@ function HomePage({ products, searchQuery }) {
 
             <ProductGrid
                 products={visibleProducts}
-                onProductSelect={product => navigate(`/products/${product.id}`)}
+                onProductSelect={
+                    product => 
+                        navigate(
+                            `/products/${product.id}`, {
+                                state: { from: "/"}
+                            }
+                        )
+                    }
             />
         </>
     )

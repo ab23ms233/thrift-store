@@ -5,11 +5,7 @@ function ProductGrid({products, onProductSelect}) {
         <div className="product-grid">
             {products.map(product => (
                 <ProductCard
-                    key={product.id}
-                    title={product.title}
-                    price={product.price}
-                    description={product.description}
-                    image={product.image}
+                    product={product}
                     onClick={() => onProductSelect(product)}
                 />
             ))}

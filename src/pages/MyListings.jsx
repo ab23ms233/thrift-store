@@ -11,7 +11,14 @@ function MyListings({ products, currentUser }) {
     return (
         <ProductGrid
             products={myProducts}
-            onProductSelect={(product) => navigate(`/products/${product.id}`)}
+            onProductSelect={
+                (product) => 
+                    navigate(
+                        `/products/${product.id}`, {
+                            state: { from: "/my-listings"}
+                        }
+                    )
+                }
         />
     )
 }
