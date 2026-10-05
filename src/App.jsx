@@ -13,6 +13,8 @@ import { EditProductRoute } from "./pages/EditProductPage.jsx";
 
 import fakeProducts from "./data/products.js";
 import MyListings from "./pages/MyListings.jsx";
+import LoginPage from "./pages/LoginPage.jsx";
+import SignUpPage from "./pages/SignUpPage.jsx";
 
 function App() {
 	const [searchQuery, setSearchQuery] = useState("")
@@ -24,12 +26,8 @@ function App() {
 		: fakeProducts
 	})
 
-	const currentUser = {
-		id: "user001",
-		name: "Arya Basak",
-		email: "aryabasak6@gmail.com"
-	}
-	const isLoggedIn = currentUser ? true : false
+	const [user, setUser] = useState(null)
+	const isLoggedIn = user ? true : false
 
 	function listProduct(product) {
 		setProductList(prevProducts => 
@@ -95,7 +93,7 @@ function App() {
 						element={
 							<SellProductPage 
 								onListProduct={listProduct}
-								currentUser={currentUser}
+								currentUser={user}
 							/>
 						}
 					/>
@@ -105,7 +103,7 @@ function App() {
 						element={
 							<ProductRoute
 								products={products}
-								currentUser={currentUser}
+								currentUser={user}
 								onDelete={deleteProduct}
 								onProductSold={onProductSold}
 							/>
@@ -117,7 +115,7 @@ function App() {
 						element={
 							<MyListings
 								products={products}
-								currentUser={currentUser} />
+								currentUser={user} />
 						}
 					/>
 
@@ -130,6 +128,24 @@ function App() {
 							/>
 						}
 					/>
+
+					<Route 
+						path="/login"
+						element={
+							<LoginPage
+								onLogin={setUser}
+							/>
+						}
+					/>
+
+					<Route 
+						path="/sign-up"
+						element={
+							<SignUpPage
+								onSignUp={setUser}/>
+						}
+					/>
+
 				</Routes>
 			</main>
 		</BrowserRouter>

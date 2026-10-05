@@ -39,14 +39,19 @@ function Navbar({ searchQuery, onSearchChange, isLoggedIn }) {
                 : (
                     <div className="nav-btn-cont">
                         <NavBtn
+                            text="Sell"
+                            id="sell-btn"
+                            onClick={() => navigate("/sell")}
+                        />
+                        <NavBtn
                             text="Login"
                             id="login-btn"
                             onClick={() => navigate("/login")}
                         />
                         <NavBtn
-                            text="Sell"
-                            id="sell-btn"
-                            onClick={() => navigate("/sell")}
+                            text="Sign Up"
+                            id="signup-btn"
+                            onClick={() => navigate("/sign-up")}
                         />
                     </div>
                 )
