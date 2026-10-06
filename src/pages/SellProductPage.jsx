@@ -1,25 +1,55 @@
 import { useNavigate } from "react-router-dom";
+import { supabase } from "../lib/supabase.js";
+
 import ProductForm from "../components/ProductForm.jsx";
 
-function SellProductPage({ onListProduct, currentUser }) {
+function SellProductPage({ currentUser }) {
     const navigate = useNavigate()
 
-    function handleSubmit(product) {
+    async function handleSubmit(product) {
         if (!product.image) {
             return
         }
 
-        onListProduct({
-            ...product,
-            id: crypto.randomUUID(),
-            price: Number(product.price),
-            image: URL.createObjectURL(product.image),
-            ownerId: currentUser.id,
-            postedOn: new Date().toISOString(),
-            status: "AVAILABLE"
-        })
+        try {
+            const fileExt = product.image.name.split(".").pop()
+            const fileName = `${currentUser.id}/${crypto.randomUUID()}.${fileExt}`
 
-        navigate("/")
+            const { error: uploadError } = await supabase.storage
+                .from("product-images")
+                .upload(fileName, product.image)
+            
+            if (uploadError) {
+                console.error(uploadError)
+            }
+
+            const { data: imageData } = supabase.storage
+                .from("product-images")
+                .getPublicUrl(fileName)
+            
+            const imageUrl = imageData.publicUrl
+
+            const { error: insertError } = await supabase
+                .from("products")
+                .insert({
+                    title: product.title,
+                    description: product.description,
+                    price: Number(product.price),
+                    category_id: product.category,
+                    owner_id: currentUser.id,
+                    image_url: imageUrl,
+                    status: "AVAILABLE"
+                })
+            
+            if (insertError) {
+                console.error(insertError)
+            }
+            navigate("/")
+
+        } catch (error) {
+            console.error("Error listing product:", error)
+        }
+
     }
 
     return (

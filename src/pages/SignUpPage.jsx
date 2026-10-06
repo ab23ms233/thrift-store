@@ -37,7 +37,9 @@ function SignUpPage({ onSignUp }) {
                 email,
                 password,
                 options: {
-                    data: { name }
+                    data: { 
+                        full_name: name 
+                    }
                 }
             })
             console.log(data)
@@ -47,10 +49,10 @@ function SignUpPage({ onSignUp }) {
                 return
             }
 
+            onSignUp(data.user)
             setSuccessMessage(
                 "Account created successfully."
             )
-            onSignUp(data.user)
 
             setTimeout(() => {
                 navigate("/")
@@ -66,7 +68,7 @@ function SignUpPage({ onSignUp }) {
         <>
             <form className="form signup-form" onSubmit={handleSignUp}>
                 <div className="form-field">
-                    <label htmlFor="login-name-input">Name</label>
+                    <label htmlFor="login-name-input">Full Name</label>
                     <input
                         id="login-name-input"
                         type="text"

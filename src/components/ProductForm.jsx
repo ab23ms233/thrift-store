@@ -1,6 +1,7 @@
 import "./ProductForm.css"
-import categories from "../data/categories.js"
-import { useState } from "react"
+import { useEffect, useState } from "react"
+
+import { getCategories } from "../services/categories.js";
 
 function ProductForm({ initialProduct, onSubmit, submitLabel }) {
     const [title, setTitle] = useState(initialProduct?.title ?? "");
@@ -8,6 +9,17 @@ function ProductForm({ initialProduct, onSubmit, submitLabel }) {
     const [price, setPrice] = useState(initialProduct?.price ?? "");
     const [category, setCategory] = useState(initialProduct?.category ?? "");
     const [imageFile, setImageFile] = useState(null);
+
+    const [categories, setCategories] = useState([])
+
+    useEffect(() => {
+        async function fetchCategories() {
+            const data = await getCategories()
+            setCategories(data)
+        }
+
+        fetchCategories()
+    }, [])
 
     function handleSubmitForm(event) {
         event.preventDefault()
@@ -61,7 +73,9 @@ function ProductForm({ initialProduct, onSubmit, submitLabel }) {
                 >
                     <option value="">Select a category...</option>
                     {categories.map(category => (
-                        <option key={category.id} value={category.name}>{category.name}</option>
+                        <option key={category.id} value={category.id}>
+                            {category.name}
+                        </option>
                     ))}
                 </select>
 
@@ -73,7 +87,7 @@ function ProductForm({ initialProduct, onSubmit, submitLabel }) {
                     type="file"
                     accept="image/*"
                     onChange={event => setImageFile(event.target.files[0])}
-                    required
+                    required={!initialProduct}
                 />
             </label>
 

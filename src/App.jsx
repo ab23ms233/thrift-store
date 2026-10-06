@@ -11,32 +11,38 @@ import HomePage from "./pages/HomePage.jsx";
 import SellProductPage from "./pages/SellProductPage.jsx";
 import { EditProductRoute } from "./pages/EditProductPage.jsx";
 
-import fakeProducts from "./data/products.js";
 import MyListings from "./pages/MyListings.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import SignUpPage from "./pages/SignUpPage.jsx";
 
+import { getProducts } from "./services/products.js";
+
 function App() {
 	const [searchQuery, setSearchQuery] = useState("")
-	const [products, setProductList] = useState(() => {
-		const products = localStorage.getItem("products")
+	const [products, setProducts] = useState([])
 
-		return products
-		? JSON.parse(products)
-		: fakeProducts
-	})
+	useEffect(() => {
+		async function fetchProducts() {
+			const data = await getProducts()
+			setProducts(data)
+		}
 
+		fetchProducts()
+	}, [])
+
+	console.log(products)
+	
 	const [user, setUser] = useState(null)
 	const isLoggedIn = user ? true : false
 
 	function listProduct(product) {
-		setProductList(prevProducts => 
+		setProducts(prevProducts => 
 			[...prevProducts, product]
 		)
 	}
 
 	function editProduct(updatedProduct) {
-		setProductList(prevProducts =>
+		setProducts(prevProducts =>
 			prevProducts.map(product => 
 				product.id === updatedProduct.id
 				? updatedProduct
@@ -46,13 +52,13 @@ function App() {
 	}
 
 	function deleteProduct(product) {
-		setProductList(prevProducts =>
+		setProducts(prevProducts =>
 			prevProducts.filter(item => item.id !== product.id)
 		)
 	}
 
 	function onProductSold(soldProduct) {
-		setProductList(prevProducts =>
+		setProducts(prevProducts =>
 			prevProducts.map(
 				product =>
 				product.id === soldProduct.id
