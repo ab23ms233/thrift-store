@@ -11,7 +11,7 @@ import HomePage from "./pages/HomePage.jsx";
 import SellProductPage from "./pages/SellProductPage.jsx";
 import { EditProductRoute } from "./pages/EditProductPage.jsx";
 
-import MyListings from "./pages/MyListings.jsx";
+import MyListings from "./pages/MyListingsPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import SignUpPage from "./pages/SignUpPage.jsx";
 
@@ -21,59 +21,14 @@ function App() {
 	const [searchQuery, setSearchQuery] = useState("")
 	const [products, setProducts] = useState([])
 
-	useEffect(() => {
-		async function fetchProducts() {
-			const data = await getProducts()
-			setProducts(data)
-		}
+	async function fetchProducts() {
+		const data = await getProducts()
+		setProducts(data)
+	}
 
+	useEffect(() => {
 		fetchProducts()
 	}, [])
-
-	console.log(products)
-	
-	const [user, setUser] = useState(null)
-	const isLoggedIn = user ? true : false
-
-	function listProduct(product) {
-		setProducts(prevProducts => 
-			[...prevProducts, product]
-		)
-	}
-
-	function editProduct(updatedProduct) {
-		setProducts(prevProducts =>
-			prevProducts.map(product => 
-				product.id === updatedProduct.id
-				? updatedProduct
-				: product
-			)
-		)
-	}
-
-	function deleteProduct(product) {
-		setProducts(prevProducts =>
-			prevProducts.filter(item => item.id !== product.id)
-		)
-	}
-
-	function onProductSold(soldProduct) {
-		setProducts(prevProducts =>
-			prevProducts.map(
-				product =>
-				product.id === soldProduct.id
-				? {...product, status: "SOLD"}
-				: product
-			)
-		)
-	}
-
-	useEffect(() => {
-		localStorage.setItem(
-			"products",
-			JSON.stringify(products)
-		)
-	}, [products])
 
 	return (
 		<BrowserRouter>
@@ -81,37 +36,33 @@ function App() {
 				<Navbar
 					searchQuery={searchQuery}
 					onSearchChange={setSearchQuery}
-					isLoggedIn={isLoggedIn}
 				/>
 				<Routes>
-					<Route 
-						path="/" 
+					<Route
+						path="/"
 						element={
 							<HomePage
 								products={products}
 								searchQuery={searchQuery}
 							/>
-						} 
+						}
 					/>
 
-					<Route 
+					<Route
 						path="/sell"
 						element={
-							<SellProductPage 
-								onListProduct={listProduct}
-								currentUser={user}
+							<SellProductPage
+								onListProduct={fetchProducts}
 							/>
 						}
 					/>
-					
-					<Route 
+
+					<Route
 						path="/products/:productId"
 						element={
 							<ProductRoute
 								products={products}
-								currentUser={user}
-								onDelete={deleteProduct}
-								onProductSold={onProductSold}
+								onProductsChanged={fetchProducts}
 							/>
 						}
 					/>
@@ -121,7 +72,7 @@ function App() {
 						element={
 							<MyListings
 								products={products}
-								currentUser={user} />
+							/>
 						}
 					/>
 
@@ -130,25 +81,22 @@ function App() {
 						element={
 							<EditProductRoute
 								products={products}
-								onEditProduct={editProduct}
+								onEditProduct={fetchProducts}
 							/>
 						}
 					/>
 
-					<Route 
+					<Route
 						path="/login"
 						element={
-							<LoginPage
-								onLogin={setUser}
-							/>
+							<LoginPage />
 						}
 					/>
 
-					<Route 
+					<Route
 						path="/sign-up"
 						element={
-							<SignUpPage
-								onSignUp={setUser}/>
+							<SignUpPage />
 						}
 					/>
 

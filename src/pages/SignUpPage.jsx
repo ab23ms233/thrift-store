@@ -3,9 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 
 import "./Form.css"
+import { useAuth } from "../context/AuthContext";
 
-function SignUpPage({ onSignUp }) {
+function SignUpPage() {
     const navigate = useNavigate()
+    const { setUser } = useAuth()
 
     const [name, setName] = useState("")
     const [email, setEmail] = useState("")
@@ -42,14 +44,13 @@ function SignUpPage({ onSignUp }) {
                     }
                 }
             })
-            console.log(data)
 
             if (error) {
                 setErrorMessage(error.message)
                 return
             }
 
-            onSignUp(data.user)
+            setUser(data.user)
             setSuccessMessage(
                 "Account created successfully."
             )

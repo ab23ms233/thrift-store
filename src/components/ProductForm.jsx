@@ -7,11 +7,12 @@ function ProductForm({ initialProduct, onSubmit, submitLabel }) {
     const [title, setTitle] = useState(initialProduct?.title ?? "");
     const [description, setDescription] = useState(initialProduct?.description ?? "");
     const [price, setPrice] = useState(initialProduct?.price ?? "");
-    const [category, setCategory] = useState(initialProduct?.category ?? "");
+    const [categoryId, setCategoryId] = useState(initialProduct?.category_id ?? "");
     const [imageFile, setImageFile] = useState(null);
 
     const [categories, setCategories] = useState([])
-
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    
     useEffect(() => {
         async function fetchCategories() {
             const data = await getCategories()
@@ -21,16 +22,21 @@ function ProductForm({ initialProduct, onSubmit, submitLabel }) {
         fetchCategories()
     }, [])
 
-    function handleSubmitForm(event) {
+    async function handleSubmitForm(event) {
         event.preventDefault()
+        setIsSubmitting(true)
 
-        onSubmit({
-            title,
-            description,
-            price,
-            category,
-            image: imageFile
-        })
+        try {
+            await onSubmit({
+                title,
+                description,
+                price,
+                categoryId,
+                image: imageFile
+            })
+        } finally {
+            setIsSubmitting(false)
+        }
     }
     return (
         <form className="product-form" onSubmit={handleSubmitForm}>
@@ -67,8 +73,8 @@ function ProductForm({ initialProduct, onSubmit, submitLabel }) {
             <label>
                 Category
                 <select
-                    value={category}
-                    onChange={event => setCategory(event.target.value)}
+                    value={categoryId}
+                    onChange={event => setCategoryId(event.target.value)}
                     required
                 >
                     <option value="">Select a category...</option>
@@ -91,7 +97,9 @@ function ProductForm({ initialProduct, onSubmit, submitLabel }) {
                 />
             </label>
 
-            <button type="submit">{submitLabel}</button>
+            <button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "Saving..." : submitLabel}
+            </button>
         </form>
     )
 }

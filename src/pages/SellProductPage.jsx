@@ -1,55 +1,29 @@
 import { useNavigate } from "react-router-dom";
-import { supabase } from "../lib/supabase.js";
 
 import ProductForm from "../components/ProductForm.jsx";
+import { useAuth } from "../context/AuthContext.jsx";
+import { addProduct } from "../services/products.js";
 
-function SellProductPage({ currentUser }) {
+function SellProductPage({ onListProduct }) {
     const navigate = useNavigate()
+    const { user } = useAuth()
 
     async function handleSubmit(product) {
         if (!product.image) {
             return
         }
+        if (!product.id) {
+            product.id = crypto.randomUUID()
+        }
 
         try {
-            const fileExt = product.image.name.split(".").pop()
-            const fileName = `${currentUser.id}/${crypto.randomUUID()}.${fileExt}`
-
-            const { error: uploadError } = await supabase.storage
-                .from("product-images")
-                .upload(fileName, product.image)
-            
-            if (uploadError) {
-                console.error(uploadError)
-            }
-
-            const { data: imageData } = supabase.storage
-                .from("product-images")
-                .getPublicUrl(fileName)
-            
-            const imageUrl = imageData.publicUrl
-
-            const { error: insertError } = await supabase
-                .from("products")
-                .insert({
-                    title: product.title,
-                    description: product.description,
-                    price: Number(product.price),
-                    category_id: product.category,
-                    owner_id: currentUser.id,
-                    image_url: imageUrl,
-                    status: "AVAILABLE"
-                })
-            
-            if (insertError) {
-                console.error(insertError)
-            }
+            await addProduct(product, user.id)
+            await onListProduct()
             navigate("/")
 
         } catch (error) {
             console.error("Error listing product:", error)
         }
-
     }
 
     return (

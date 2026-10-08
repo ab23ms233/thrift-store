@@ -3,9 +3,11 @@ import { supabase } from "../lib/supabase.js"
 import { useState } from "react"
 
 import "./Form.css"
+import { useAuth } from "../context/AuthContext.jsx"
 
-function LoginPage({ onLogin }) {
+function LoginPage() {
     const navigate = useNavigate()
+    const { setUser } = useAuth()
 
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
@@ -14,7 +16,7 @@ function LoginPage({ onLogin }) {
     const [loginMessage, setLoginMessage] = useState("")
     const [isLoggedIn, setLogin] = useState(false)
 
-    async function handleLogin(event, onLogin) {
+    async function handleLogin(event) {
         event.preventDefault()
         setErrorMessage("")
         setLoginMessage("")
@@ -31,8 +33,8 @@ function LoginPage({ onLogin }) {
                 setErrorMessage(error.message)
                 return
             }
-    
-            onLogin(data.user)
+            
+            setUser(data.user)
             setLoginMessage("Login successful!")
     
             setTimeout(() => {
@@ -48,7 +50,7 @@ function LoginPage({ onLogin }) {
     
     return (
         <>
-            <form className="form login-form" onSubmit={(event) => handleLogin(event, onLogin)}>
+            <form className="form login-form" onSubmit={handleLogin}>
                 <div className="form-field">
                     <label htmlFor="login-email-input">Email</label>
                     <input

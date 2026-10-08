@@ -1,12 +1,12 @@
 import { useLocation, useParams } from "react-router-dom"
 import { useNavigate } from "react-router-dom"
 import "./ProductPage.css"
+import { useAuth } from "../context/AuthContext"
+import { deleteProduct, markProductAsSold } from "../services/products"
 
 export function ProductRoute({ 
     products, 
-    currentUser, 
-    onDelete, 
-    onProductSold 
+    onProductsChanged
 }) {
     const {productId} = useParams()
     const product = products.find(
@@ -16,25 +16,22 @@ export function ProductRoute({
     return product
     ? <ProductPage
         product={product}
-        currentUser={currentUser}
-        onDelete={onDelete}
-        onProductSold={onProductSold} />
+        onProductsChanged={onProductsChanged} />
     : <p>Product not found.</p>
 }
 
 function ProductPage({ 
     product,
-    currentUser,
-    onDelete,
-    onProductSold
+    onProductsChanged
 }) {
     const location = useLocation()
     const navigate = useNavigate()
+    const { user } = useAuth()
 
     const from = location.state?.from || "/"
-    const isOwner = currentUser.id === product.ownerId
+    const isOwner = user.id === product.owner_id
 
-    function handleDelete() {
+    async function handleDelete() {
         const confirm = window.confirm(
             "Are you sure you want to delete this product?"
         )
@@ -43,12 +40,14 @@ function ProductPage({
             return
         }
 
-        onDelete(product)
+        await deleteProduct(product.id, user.id)
+        await onProductsChanged()
         navigate(from)
     }
 
-    function handleSold() {
-        onProductSold(product)
+    async function handleSold() {
+        await markProductAsSold(product.id, user.id)
+        await onProductsChanged()
         navigate(from)
     }
 
@@ -56,7 +55,7 @@ function ProductPage({
         <div className="product-page">
             <div className="product-page-img">
                 <img
-                    src={product.image}
+                    src={product.image_url}
                     alt={product.title} 
                 />
             </div>
@@ -73,8 +72,8 @@ function ProductPage({
                 </p>
 
                 <div className="product-page-metadata">
-                    <p>Posted On: {new Date(product.postedOn).toLocaleDateString()}</p>
-                    <p>Owner: {product.owner}</p>
+                    <p>Posted On: {new Date(product.created_at).toLocaleDateString()}</p>
+                    <p>Owner: {product.owner_name?.full_name}</p>
                     <p>Status: {product.status}</p>
                 </div>
 

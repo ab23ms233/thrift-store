@@ -1,5 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import ProductForm from "../components/ProductForm.jsx";
+import { editProduct } from "../services/products.js";
+import { useAuth } from "../context/AuthContext.jsx";
 
 export function EditProductRoute({ products, onEditProduct }) {
     const { productId } = useParams()
@@ -15,19 +17,16 @@ export function EditProductRoute({ products, onEditProduct }) {
 
 function EditProductPage({ product, onEditProduct }) {
     const navigate = useNavigate()
+    const { user } = useAuth()
 
-    function handleSubmit(fields) {
-        const updatedProduct = {
-            ...product,
-            ...fields,
-            price: Number(fields.price),
-            image: fields.image
-            ? URL.createObjectURL(fields.image)
-            : product.image
+    async function handleSubmit(fields) {
+        try {
+            await editProduct(product.id, fields, user.id)
+            await onEditProduct()
+            navigate(`/products/${product.id}`)
+        } catch (error) {
+            console.error("Could not update product:", product.id, error)
         }
-
-        onEditProduct(updatedProduct)
-        navigate(`/products/${product.id}`)
     }
 
     return (

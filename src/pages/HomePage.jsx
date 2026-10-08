@@ -13,7 +13,7 @@ function HomePage({ products, searchQuery }) {
 	const visibleProducts = products.filter(product => {
 		const matchesCategory =
 			selectedCategory === "All" ||
-			product.category === selectedCategory
+			product.category?.name === selectedCategory
 		
 		const query = searchQuery.trim().toLowerCase()
 		const matchesSearch =
@@ -26,7 +26,7 @@ function HomePage({ products, searchQuery }) {
 
 	const categories = [
 		"All",
-		...new Set(products.map(product => product.category))
+		...new Set(products.map(product => product.category?.name))
 	]
 
     return (
