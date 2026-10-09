@@ -1,3 +1,5 @@
+import "./CategoryCard.css"
+
 function CategoryCard({category, isSelected, onSelect}) {
     return (
         <button
@@ -9,8 +11,9 @@ function CategoryCard({category, isSelected, onSelect}) {
                 : ""}`
             }
             aria-pressed={isSelected}
-            onClick={() => onSelect(category)}>
-                {category}
+            onClick={() => onSelect(category.name)}>
+                <img className="category-icon" src={category.iconUrl} alt={category.name} />
+                <p className="category-name">{category.name}</p>
             </button>
     )
 }

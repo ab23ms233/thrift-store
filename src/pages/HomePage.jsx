@@ -1,13 +1,16 @@
-import CategoryCard from "../components/CategoryCard.jsx"
-import "../components/CategoryCard.css"
-
+import CategorySection from "../components/CategorySection.jsx"
 import ProductGrid from "../components/ProductGrid.jsx"
+import SearchBar from "../components/SearchBar.jsx"
+import SellButton from "../components/SellButton.jsx"
 
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
+import "./HomePage.css"
 
-function HomePage({ products, searchQuery }) {
+
+function HomePage({ products }) {
     const navigate = useNavigate()
+    const [searchQuery, setSearchQuery] = useState("")
     const [selectedCategory, setSelectedCategory] = useState("All")
 
 	const visibleProducts = products.filter(product => {
@@ -24,23 +27,18 @@ function HomePage({ products, searchQuery }) {
 		return matchesCategory && matchesSearch
 	})
 
-	const categories = [
-		"All",
-		...new Set(products.map(product => product.category?.name))
-	]
-
     return (
-        <>
-            <div className="category-list">
-                {categories.map(category => (
-                    <CategoryCard
-                        key={category}
-                        category={category}
-                        isSelected={selectedCategory === category}
-                        onSelect={setSelectedCategory}
-                    />
-                ))}
-            </div>
+        <div className="home-page">
+            <SearchBar
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
+            />
+
+            <CategorySection
+                products={products}
+                selectedCategory={selectedCategory}
+                setSelectedCategory={setSelectedCategory}
+            />
 
             <ProductGrid
                 products={visibleProducts}
@@ -53,7 +51,9 @@ function HomePage({ products, searchQuery }) {
                         )
                     }
             />
-        </>
+
+            <SellButton />
+        </div>
     )
 }
 

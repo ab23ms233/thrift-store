@@ -4,8 +4,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "./App.css"
 import { ProductRoute } from "./pages/ProductPage.jsx";
 
-import Navbar from "./components/Navbar.jsx";
-import "./components/Navbar.css"
+import Header from "./components/Header.jsx";
 
 import HomePage from "./pages/HomePage.jsx";
 import SellProductPage from "./pages/SellProductPage.jsx";
@@ -18,7 +17,6 @@ import SignUpPage from "./pages/SignUpPage.jsx";
 import { getProducts } from "./services/products.js";
 
 function App() {
-	const [searchQuery, setSearchQuery] = useState("")
 	const [products, setProducts] = useState([])
 
 	async function fetchProducts() {
@@ -33,17 +31,14 @@ function App() {
 	return (
 		<BrowserRouter>
 			<main>
-				<Navbar
-					searchQuery={searchQuery}
-					onSearchChange={setSearchQuery}
-				/>
+				<Header	/>
+
 				<Routes>
 					<Route
 						path="/"
 						element={
 							<HomePage
 								products={products}
-								searchQuery={searchQuery}
 							/>
 						}
 					/>

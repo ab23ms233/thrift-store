@@ -3,7 +3,7 @@ import { supabase } from "../lib/supabase.js";
 export async function getProducts() {
     const { data, error } = await supabase
         .from("products")
-        .select("*, category:categories(name), owner_name:profiles(full_name)")
+        .select("*, category:categories(name, icon_path), owner_name:profiles(full_name)")
         .order("created_at", { ascending: false })
 
     if (error) {
@@ -11,7 +11,19 @@ export async function getProducts() {
         return []
     }
 
-    return data
+    return data.map(product => ({
+        ...product,
+        category: product.category
+            ? {
+                name: product.category?.name,
+                iconUrl: product.category.icon_path
+                    ? supabase.storage
+                        .from("category-icons")
+                        .getPublicUrl(product.category.icon_path).data.publicUrl
+                    : null
+            }
+            : null
+    }))
 }
 
 export async function addProduct(product, userId) {

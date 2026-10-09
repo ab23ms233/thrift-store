@@ -1,0 +1,15 @@
+.nav-search {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    height: clamp(44px, 12vw, 50px);
+    padding: 0 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: 0.85rem;
+}
+
+.search-section {
+    width: 100%;
+}

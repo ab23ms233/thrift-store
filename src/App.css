@@ -1,29 +1,18 @@
 main {
-    max-width: 1200px;
+    width: 100%;
+    /* max-width: 480px; */
     margin: 0 auto;
-    padding: 40px 24px;
+    padding: 24px 40px;
+    box-sizing: border-box;
 }
 
 .header {
-    font-size: 2.5rem;
-    margin-bottom: 32px;
-	text-align: center;
+    font-weight: 400;
+    margin: 0;
+    font-size: 1.1rem;
+    padding: 0;
 }
 
-.product-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 24px;
-}
-
-@media (max-width: 900px) {
-    .product-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
-}
-
-@media (max-width: 600px) {
-    .product-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
+h1, h2, h3, h4, p {
+    margin: 0;
 }
