@@ -6,6 +6,12 @@
   --color-primary: #39735c;
   --color-primary-soft: #eaf2ec;
   --color-border: #e7eae4;
+  --color-error: #B33E35;
+  --color-error-bg: #FFF2EF;
+  --color-error-border: #EBCBC5;
+  --color-success-bg: #EAF2EC;
+  --color-success-border: #E7EAE4;
+  --color-success: #39735c;
 
   --radius-sm: 8px;
   --radius-md: 12px;

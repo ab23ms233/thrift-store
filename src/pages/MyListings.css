@@ -1,0 +1,26 @@
+.my-listings-page {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+    justify-content: center;
+}
+
+.my-listings-summary {
+    margin: 0;
+    color: var(--color-muted);
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.my-listings-footer {
+    color: var(--color-muted);
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+@media (max-width: 420px) {
+    .my-listings-page {
+        padding-inline: 10px;
+    }
+}

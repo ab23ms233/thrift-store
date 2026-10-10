@@ -3,7 +3,7 @@ import { supabase } from "../lib/supabase.js";
 export async function getProducts() {
     const { data, error } = await supabase
         .from("products")
-        .select("*, category:categories(name, icon_path), owner_name:profiles(full_name)")
+        .select("*, category:categories(name, icon_path), owner_name:profiles(full_name), owner_email:profiles(email)")
         .order("created_at", { ascending: false })
 
     if (error) {

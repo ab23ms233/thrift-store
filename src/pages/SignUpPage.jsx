@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 
-import "./Form.css"
+import "../components/Form.css"
 import { useAuth } from "../context/AuthContext";
 
 function SignUpPage() {

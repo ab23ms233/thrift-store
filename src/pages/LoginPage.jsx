@@ -2,8 +2,10 @@ import { Link, useNavigate } from "react-router-dom"
 import { supabase } from "../lib/supabase.js"
 import { useState } from "react"
 
-import "./Form.css"
+import "../components/Form.css"
 import { useAuth } from "../context/AuthContext.jsx"
+
+import CTAButton from "../components/CTAButton.jsx"
 
 function LoginPage() {
     const navigate = useNavigate()
@@ -28,32 +30,36 @@ function LoginPage() {
                     password
                 }
             )
-    
+
             if (error) {
                 setErrorMessage(error.message)
                 return
             }
-            
+
             setUser(data.user)
             setLoginMessage("Login successful!")
-    
+
             setTimeout(() => {
                 navigate("/")
             }, 1000)
-            
+
         } catch (error) {
             setErrorMessage(error.message)
         } finally {
             setLogin(true)
         }
     }
-    
+
     return (
         <>
             <form className="form login-form" onSubmit={handleLogin}>
-                <div className="form-field">
-                    <label htmlFor="login-email-input">Email</label>
+                <label
+                    htmlFor="login-email-input"
+                    className="form-field">
+                    Email
+
                     <input
+                        className="input-box"
                         id="login-email-input"
                         type="email"
                         value={email}
@@ -62,11 +68,15 @@ function LoginPage() {
                         name="email"
                         autoComplete="email"
                         required />
-                </div>
+                </label>
 
-                <div className="form-field">
-                    <label htmlFor="login-password-input">Password</label>
+                <label
+                    htmlFor="login-password-input"
+                    className="form-field">
+                    Password
+
                     <input
+                        className="input-box"
                         id="login-password-input"
                         type="password"
                         name="password"
@@ -76,16 +86,19 @@ function LoginPage() {
                         placeholder="Enter password..."
                     />
                     <a href="/forgot-password">Forgot Password</a>
-                </div>
+                </label>
 
                 {errorMessage &&
-                <p className="error-message">{errorMessage}</p>
+                    <p className="error-message">{errorMessage}</p>
                 }
                 {loginMessage &&
-                <p className="success-message">{loginMessage}</p>
+                    <p className="success-message">{loginMessage}</p>
                 }
 
-                <button type="submit" className="log-in-btn">Log In</button>
+                <CTAButton
+                    text={"Login"}
+                    type={"submit"}
+                />
             </form>
 
             <p>

@@ -1,21 +1,20 @@
 .sell-button {
     display: flex;
     flex-direction: row;
-    align-items: center;
+    justify-content: center;
     gap: var(--space-xs);
     position: fixed;
     bottom: 20px;
     right: 20px;
-    background: var(--color-primary);
+    background-color: var(--color-primary);
     color: white;
     cursor: pointer;
-    /* width: 100px; */
-    /* height: 50px; */
+
     padding: 12px var(--space-md);
-    border: 1px solid var(--color-border);
+    border: none;
     border-radius: var(--radius-lg);
     transition: all 0.3s ease;
-
+    width: 100px;
 }
 
 .sell-text {

@@ -1,7 +1,10 @@
+import { useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import ProductForm from "../components/ProductForm.jsx";
 import { editProduct } from "../services/products.js";
 import { useAuth } from "../context/AuthContext.jsx";
+
+import "./ProductFormPage.css"
 
 export function EditProductRoute({ products, onEditProduct }) {
     const { productId } = useParams()
@@ -20,21 +23,35 @@ function EditProductPage({ product, onEditProduct }) {
     const { user } = useAuth()
 
     async function handleSubmit(fields) {
-        try {
-            await editProduct(product.id, fields, user.id)
-            await onEditProduct()
-            navigate(`/products/${product.id}`)
-        } catch (error) {
-            console.error("Could not update product:", product.id, error)
-        }
+        await editProduct(product.id, fields, user.id)
+        await onEditProduct()
     }
 
+    const handleSuccess = useCallback(
+        () => navigate(`/products/${product.id}`),
+        [navigate, product.id]
+    )
+
     return (
-        <ProductForm
-            initialProduct={product}
-            onSubmit={handleSubmit}
-            submitLabel={"Edit Product"}
-        />
+        <section className="product-form-page edit-product-page">
+            <div className="page-description">
+                <h3 className="page-header">
+                    Edit Product
+                </h3>
+                <p className="page-label">
+                    Keep your listing up to date.
+                </p>
+            </div>
+
+            <ProductForm
+                initialProduct={product}
+                onSubmit={handleSubmit}
+                submitLabel={"Edit Product"}
+                errorMessage={"Could not edit your product."}
+                successMessage={"Product edited successfully."}
+                onSuccess={handleSuccess}
+            />
+        </section>
     )
 }
 

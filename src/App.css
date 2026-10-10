@@ -1,6 +1,5 @@
 main {
     width: 100%;
-    /* max-width: 480px; */
     margin: 0 auto;
     padding: 24px 40px;
     box-sizing: border-box;
@@ -15,4 +14,20 @@ main {
 
 h1, h2, h3, h4, p {
     margin: 0;
+}
+
+.page-description {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    padding-right: var(--space-md);
+}
+
+.page-header {
+    font-size: 1.3rem;
+}
+
+.page-label {
+    font-size: 0.9rem;
+    color: var(--color-muted);
 }
