@@ -5,13 +5,15 @@ import { useEffect, useState } from "react"
 import { getCategories } from "../services/categories.js";
 import CTAButton from "./CTAButton.jsx"
 
+import { FormError, FormSuccess } from "./FormStatus.jsx";
+import "./FormStatus.css"
+
 function ProductForm({ 
     initialProduct, 
     onSubmit, 
     submitLabel, 
     errorMessage,
-    successMessage,
-    onSuccess
+    successMessage
 }) {
     const [title, setTitle] = useState(initialProduct?.title ?? "");
     const [description, setDescription] = useState(initialProduct?.description ?? "");
@@ -38,15 +40,6 @@ function ProductForm({
 
         fetchCategories()
     }, [])
-
-    useEffect(() => {
-        if (!formSuccess || !onSuccess) {
-            return
-        }
-
-        const timeoutId = window.setTimeout(onSuccess, 2000)
-        return () => window.clearTimeout(timeoutId)
-    }, [formSuccess, onSuccess])
 
     function validateTitle(value) {
         const error = value.trim() ? "" : "Please enter a title."
@@ -126,8 +119,8 @@ function ProductForm({
 
     return (
         <form className="form" id="product-form" onSubmit={handleSubmitForm} noValidate>
-            <label htmlFor="product-title" className="form-field">
-                Title*
+            <div className="form-field">
+                <label htmlFor="product-title">Title*</label>
                 <input
                     id="product-title"
                     className={`input-box ${titleError ? "input-box--error" : ""}`}
@@ -144,10 +137,10 @@ function ProductForm({
                     required
                 />
                 {titleError && <span className="field-error" id="title-error">{titleError}</span>}
-            </label>
+            </div>
 
-            <label htmlFor="product-description" className="form-field">
-                Description (optional)
+            <div className="form-field">
+                <label htmlFor="product-description">Description (optional)</label>
                 <textarea
                     id="product-description"
                     placeholder="e.g. Casio fx-991EX, like new. Used for one semester. Includes the cover."
@@ -155,10 +148,10 @@ function ProductForm({
                     value={description}
                     onChange={event => setDescription(event.target.value)}
                 />
-            </label>
+            </div>
 
-            <label htmlFor="product-price" className="form-field">
-                Price*
+            <div className="form-field">
+                <label htmlFor="product-price">Price*</label>
                 <input
                     id="product-price"
                     type="number"
@@ -177,10 +170,10 @@ function ProductForm({
                     required
                 />
                 {priceError && <span className="field-error" id="price-error">{priceError}</span>}
-            </label>
+            </div>
 
-            <label htmlFor="product-category" className="form-field">
-                Category*
+            <div className="form-field">
+                <label htmlFor="product-category">Category*</label>
                 <select
                     id="product-category"
                     className={`input-box drop-down ${categoryError ? "input-box--error" : ""}`}
@@ -192,8 +185,7 @@ function ProductForm({
                     onBlur={event => validateCategory(event.target.value)}
                     aria-invalid={Boolean(categoryError)}
                     aria-describedby={categoryError ? "category-error" : undefined}
-                    required
-                >
+                    required >
                     <option value="">Select a category...</option>
                     {categories.map(category => (
                         <option key={category.id} value={category.id}>
@@ -202,10 +194,10 @@ function ProductForm({
                     ))}
                 </select>
                 {categoryError && <span className="field-error" id="category-error">{categoryError}</span>}
-            </label>
+            </div>
 
-            <label className="form-field image-field" htmlFor="product-image">
-                Image*
+            <div className="form-field image-field">
+                <label htmlFor="product-image">Image*</label>
                 <div className={`image-upload-area ${imageError ? "image-upload-area--error" : ""}`}>
                     <span className="upload-icon" aria-hidden="true">+</span>
                     
@@ -234,35 +226,24 @@ function ProductForm({
                         onBlur={event => validateImage(event.target.files[0] ?? null)}
                         aria-invalid={Boolean(imageError)}
                         aria-describedby={imageError ? "image-error" : undefined}
-                        required={!initialProduct}
-                    />
+                        required={!initialProduct} />
                 </div>
                 {imageError && <span className="field-error" id="image-error">{imageError}</span>}
-            </label>
+            </div>
             
             {
                 formError && (
-                    <div className="form-status form-error">
-                        <strong className="form-message error-message">
-                            {errorMessage}
-                        </strong>
-                        <p className="form-label error-label">
-                            Your details are still here. Please try again.
-                        </p>
-                    </div>
+                    <FormError
+                        message={errorMessage}
+                        description={"Your details are still here."} />
                 )
             }
 
             {
                 formSuccess && (
-                    <div className="form-status form-success">
-                        <strong className="form-message success-message">
-                            {successMessage}
-                        </strong>
-                        <p className="form-label success-label">
-                            Your changes have been saved.
-                        </p>
-                    </div>
+                    <FormSuccess
+                        message={successMessage}
+                        description={"Your product is live on campus!"} />
                 )
             }
 
@@ -272,8 +253,7 @@ function ProductForm({
                 text={submitLabel}
                 disabledText="Saving..."
                 isSuccess={formSuccess}
-                successText={"Saved"}
-            />
+                successText={"Saved"} />
         </form>
     )
 }

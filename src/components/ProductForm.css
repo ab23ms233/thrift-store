@@ -44,7 +44,7 @@ textarea.input-box {
 }  
 
 .image-upload-area--error {
-    border-color: #d92d20;
+    border-color: var(--color-error);
 }
 
 .upload-icon {

@@ -5,8 +5,6 @@ import SellButton from "../components/SellButton.jsx"
 
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import "./HomePage.css"
-
 
 function HomePage({ products }) {
     const navigate = useNavigate()
@@ -21,14 +19,14 @@ function HomePage({ products }) {
 		const query = searchQuery.trim().toLowerCase()
 		const matchesSearch =
 			!query ||
-			product.title.includes(query) ||
-			product.description.includes(query)
+			product.title.toLowerCase().includes(query) ||
+			product.description.toLowerCase().includes(query)
 		
 		return matchesCategory && matchesSearch
 	})
 
     return (
-        <div className="home-page">
+        <section className="section" id="home-page">
             <SearchBar
                 searchQuery={searchQuery}
                 onSearchChange={setSearchQuery}
@@ -53,7 +51,7 @@ function HomePage({ products }) {
             />
 
             <SellButton />
-        </div>
+        </section>
     )
 }
 

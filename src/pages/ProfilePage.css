@@ -1,0 +1,44 @@
+.profile-page {
+    align-items: flex-start;
+}
+
+.profile-form {
+    justify-content: flex-start;
+}
+
+.profile-page__account-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    width: 100%;
+    max-width: 600px;
+    padding-top: var(--space-sm);
+    border-top: 1px solid var(--color-border);
+}
+
+.profile-page__account-actions button {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    font-size: 0.875rem;
+    cursor: pointer;
+}
+
+.profile-page__change-password {
+    color: var(--color-primary);
+}
+
+.profile-page__delete-profile {
+    color: var(--color-error);
+}
+
+.profile-page__account-actions button:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 4px;
+}
+
+.profile-page__account-actions button:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}

@@ -89,11 +89,13 @@
 
     display: flex;
     flex-direction: column;
+    gap: var(--space-sm);
 
-    width: 140px;
+    width: 180px;
     background-color: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
+
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -106,6 +108,16 @@
         fill: var(--color-primary);
         stroke: var(--color-primary);
     }
+
+    #logout-button:hover {
+        background-color: var(--color-error-bg);
+        color: var(--color-error);
+    }
+
+    #logout-button > .profile-icons:hover {
+        fill: var(--color-error);
+        stroke: var(--color-error);
+    }
 }
 
 .profile-options {
@@ -113,9 +125,11 @@
     flex-direction: row;
     align-items: center;
     gap: var(--space-sm);
+    box-sizing: border-box;
 
     border-radius: var(--radius-sm);
     padding: var(--space-sm) var(--space-md);
+    width: 100%;
     transition: all 0.15s ease;
 }
 
@@ -127,13 +141,18 @@
     stroke-width: 1;
 }
 
-.my-listings-link {
+#logout-button > .profile-icons {
+    fill: var(--color-error);
+    stroke: var(--color-error);
+}
+
+.profile-options {
     text-decoration: none;
     color: var(--color-muted);
     font-size: 0.8rem;
 }
 
-.logout-button {
+#logout-button {
     border: none;
     background: transparent;
     color: var(--color-muted);
@@ -183,4 +202,29 @@
         transform: translateY(-1px);
         box-shadow: 0 6px 16px rgba(24, 76, 63, 0.12);
     }
+}
+
+#logout-text {
+    color: var(--color-error);
+}
+
+.user-info {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: 0 var(--space-md);
+    width: 100%;
+    box-sizing: border-box;
+    padding: var(--space-md);
+    border-bottom: 1px solid var(--color-muted);
+}
+.user-icon {
+    width: 30px;
+    height: 30px;
+}
+
+.user-name {
+    font-size: 1rem;
 }

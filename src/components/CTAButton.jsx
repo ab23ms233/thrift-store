@@ -3,22 +3,23 @@ import "./CTAButton.css"
 function CTAButton({ 
     text, 
     type, 
-    disabled, 
+    isDisabled, 
     disabledText,
     successText,
-    isSuccess
+    isSuccess,
+    onClick
 }) {
     const buttonText = isSuccess
         ? successText
-        : disabled
+        : isDisabled
             ? disabledText
             : text
     return (
         <button
             className="cta-button"
             type={type}
-            disabled={disabled}
-        >
+            disabled={isDisabled}
+            onClick={onClick} >
             {buttonText}
         </button>
     )

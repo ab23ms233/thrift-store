@@ -13,6 +13,7 @@ import { EditProductRoute } from "./pages/EditProductPage.jsx";
 import MyListings from "./pages/MyListingsPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import SignUpPage from "./pages/SignUpPage.jsx";
+import ProfilePage from "./pages/ProfilePage.jsx";
 
 import { getProducts } from "./services/products.js";
 
@@ -38,62 +39,56 @@ function App() {
 						path="/"
 						element={
 							<HomePage
-								products={products}
-							/>
-						}
-					/>
+								products={products} />
+						} />
 
 					<Route
 						path="/sell"
 						element={
 							<SellProductPage
-								onListProduct={fetchProducts}
-							/>
-						}
-					/>
+								onListProduct={fetchProducts} />
+						} />
 
 					<Route
 						path="/products/:productId"
 						element={
 							<ProductRoute
 								products={products}
-								onProductsChanged={fetchProducts}
-							/>
-						}
-					/>
+								onProductsChanged={fetchProducts} />
+						} />
 
 					<Route
 						path="/my-listings"
 						element={
 							<MyListings
-								products={products}
-							/>
-						}
-					/>
+								products={products} />
+						} />
 
 					<Route
 						path="/products/:productId/edit"
 						element={
 							<EditProductRoute
 								products={products}
-								onEditProduct={fetchProducts}
-							/>
-						}
-					/>
+								onEditProduct={fetchProducts} />
+						} />
 
 					<Route
 						path="/login"
 						element={
 							<LoginPage />
-						}
-					/>
+						} />
 
 					<Route
 						path="/sign-up"
 						element={
 							<SignUpPage />
-						}
-					/>
+						} />
+
+					<Route
+						path="/profile"
+						element={
+							<ProfilePage />
+						} />
 
 				</Routes>
 			</main>

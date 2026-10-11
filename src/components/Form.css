@@ -52,31 +52,6 @@
     font-weight: 500;
 }
 
-.form-status {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-sm);
-    padding: var(--space-md);
-    border-radius: var(--radius-md);
-    
-}
-
-.form-message {
-    font-size: 0.9rem;
-}
-
-.form-label {
-    font-size: 0.8rem;
-}
-
-.form-error {
-    background-color: var(--color-error-bg);
-    color: var(--color-error);
-    border: 2px solid var(--color-error-border);
-}
-
-.form-success {
-    background-color: var(--color-success-bg);
-    border: 2px solid var(--color-success-border);
-    color: var(--color-success);
+.hint-link {
+    color: var(--color-primary);
 }

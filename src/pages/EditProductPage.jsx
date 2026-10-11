@@ -1,10 +1,10 @@
-import { useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import ProductForm from "../components/ProductForm.jsx";
 import { editProduct } from "../services/products.js";
 import { useAuth } from "../context/AuthContext.jsx";
 
-import "./ProductFormPage.css"
+import PageHeader from "../components/PageHeader.jsx";
+import { formTimeout } from "../constants.js";
 
 export function EditProductRoute({ products, onEditProduct }) {
     const { productId } = useParams()
@@ -25,32 +25,22 @@ function EditProductPage({ product, onEditProduct }) {
     async function handleSubmit(fields) {
         await editProduct(product.id, fields, user.id)
         await onEditProduct()
+
+        setTimeout(() => navigate(`/products/${product.id}`), formTimeout)
     }
 
-    const handleSuccess = useCallback(
-        () => navigate(`/products/${product.id}`),
-        [navigate, product.id]
-    )
-
     return (
-        <section className="product-form-page edit-product-page">
-            <div className="page-description">
-                <h3 className="page-header">
-                    Edit Product
-                </h3>
-                <p className="page-label">
-                    Keep your listing up to date.
-                </p>
-            </div>
+        <section className="section" id="edit-product-page">
+            <PageHeader
+                header={"Edit your product"}
+                description={"Keep your listings updated."} />
 
             <ProductForm
                 initialProduct={product}
                 onSubmit={handleSubmit}
                 submitLabel={"Edit Product"}
                 errorMessage={"Could not edit your product."}
-                successMessage={"Product edited successfully."}
-                onSuccess={handleSuccess}
-            />
+                successMessage={"Product edited successfully!"} />
         </section>
     )
 }

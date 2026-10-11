@@ -190,16 +190,6 @@
     opacity: 0.55;
 }
 
-.product-page__button--back {
-    width: 100%;
-    background: var(--color-surface);
-    color: var(--color-text);
-}
-
-.product-page__button--back:hover {
-    border-color: var(--color-text);
-}
-
 .product-page__button--secondary {
     flex: 1 1 auto;
 }
@@ -218,11 +208,6 @@
 }
 #delete-button:hover {
     border-color: var(--color-error);
-}
-
-#mark-as-sold-button {
-    background-color: var(--color-primary);
-    color: var(--color-surface);
 }
 
 .product-page__button--secondary:hover:not(:disabled) {
