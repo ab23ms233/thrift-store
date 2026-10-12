@@ -1,11 +1,3 @@
-.profile-page {
-    align-items: flex-start;
-}
-
-.profile-form {
-    justify-content: flex-start;
-}
-
 .profile-page__account-actions {
     display: flex;
     align-items: center;

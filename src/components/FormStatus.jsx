@@ -25,3 +25,16 @@ export function FormSuccess({ message, description }) {
         </div>
     )
 }
+
+export function FormStatus({ message, description }) {
+    return (
+        <div className="form-status">
+            <strong className="form-message">
+                {message}
+            </strong>
+            <p className="form-label">
+                {description}
+            </p>
+        </div>
+    )
+}

@@ -1,23 +1,23 @@
 import { useState } from "react";
-import { useNavigate, Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 
 import "../components/Form.css"
+import "./SignUpPage.css"
 
-import { useAuth } from "../context/AuthContext";
 import { INSTITUTE_EMAIL_DOMAIN } from "../constants.js"
 import CTAButton from "../components/CTAButton";
-import { formTimeout } from "../constants.js"
 
 import PageHeader from "../components/PageHeader.jsx";
-import { FormError, FormSuccess } from "../components/FormStatus.jsx";
+import { FormError, FormStatus, FormSuccess } from "../components/FormStatus.jsx";
 import BackButton from "../components/BackButton.jsx";
+import { useAuth } from "../context/AuthContext.jsx";
 
 function SignUpPage() {
     const navigate = useNavigate()
     const location = useLocation()
     const from = location?.state ?? "/"
-    const { setUser } = useAuth()
+    const { user } = useAuth()
 
     const [name, setName] = useState("")
     const [email, setEmail] = useState("")
@@ -25,7 +25,6 @@ function SignUpPage() {
     const [confirmPassword, setConfirmPassword] = useState("")
 
     const [errorMessage, setErrorMessage] = useState("");
-    const [successMessage, setSuccessMessage] = useState("");
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitted, setSubmitted] = useState(false);
@@ -34,6 +33,14 @@ function SignUpPage() {
     const [emailError, setEmailError] = useState("")
     const [passwordError, setPasswordError] = useState("")
     const [confirmPasswordError, setConfirmPasswordError] = useState("")
+
+    const [isResending, setIsResending] = useState(false);
+    const [resendMessage, setResendMessage] = useState("");
+    const [resendError, setResendError] = useState("");
+
+    const isEmailVerified = 
+        user?.email?.toLowerCase() === email.trim().toLowerCase() &&
+        Boolean(user.email_confirmed_at)
 
     function validateName(value) {
         setName(value.trim())
@@ -71,7 +78,6 @@ function SignUpPage() {
     async function handleSignUp(event) {
         event.preventDefault()
         setErrorMessage("");
-        setSuccessMessage("");
         setNameError("");
         setEmailError("");
         setPasswordError("");
@@ -91,35 +97,64 @@ function SignUpPage() {
         }
 
         try {
-            const { data, error } = await supabase.auth.signUp({
+            const { error } = await supabase.auth.signUp({
                 email,
                 password,
                 options: {
                     data: {
                         full_name: name
-                    }
+                    },
+                    emailRedirectTo: `${window.location.origin}/email-verified`
                 }
             })
 
             if (error) {
+                console.error("Error signing up:", error)
                 setErrorMessage(error.message)
+                setIsSubmitting(false)
                 return
             }
 
-            setUser(data.user)
-            setSuccessMessage(
-                "Account created successfully."
-            )
             setSubmitted(true)
 
-            setTimeout(() => {
-                navigate("/")
-            }, formTimeout)
-
         } catch (error) {
+            console.error("Error signing up:", error)
+            setIsSubmitting(false)
             setErrorMessage(error.message)
         } finally {
             setIsSubmitting(false)
+        }
+    }
+
+    async function handleResendConfirmation() {
+        if (!email || isResending) return;
+
+        setIsResending(true);
+        setResendMessage("");
+        setResendError("");
+
+        try {
+            const { error } = await supabase.auth.resend({
+                type: "signup",
+                email: email.trim().toLowerCase(),
+                options: {
+                    emailRedirectTo: `${window.location.origin}/email-verified`,
+                },
+            });
+
+            if (error) {
+                setResendError(error.message);
+                return;
+            }
+
+            setResendMessage(
+                "If this address has an unconfirmed account, a new verification email has been requested. Check your inbox and spam folder."
+            );
+        } catch (error) {
+            console.error("Could not request a verification email:", error);
+            setResendError("Could not request a verification email. Please try again later.");
+        } finally {
+            setIsResending(false);
         }
     }
 
@@ -140,6 +175,7 @@ function SignUpPage() {
                         id="signup-name-input"
                         type="text"
                         placeholder="Your name..."
+                        disabled={isSubmitting || submitted}
                         value={name}
                         onChange={(event) => {
                             setName(event.target.value)
@@ -165,6 +201,7 @@ function SignUpPage() {
                         className={`input-box${emailError ? " input-box--error" : ""}`}
                         id="signup-email-input"
                         type="email"
+                        disabled={isSubmitting || submitted}
                         value={email}
                         placeholder="Enter your institute email..."
                         onChange={(event) => {
@@ -191,6 +228,7 @@ function SignUpPage() {
                         className={`input-box${passwordError ? " input-box--error" : ""}`}
                         id="signup-password-input"
                         type="password"
+                        disabled={isSubmitting || submitted}
                         placeholder="Set your password..."
                         value={password}
                         onChange={(event) => {
@@ -219,6 +257,7 @@ function SignUpPage() {
                         id="signup-confirm-password-input"
                         type="password"
                         placeholder="Confirm your password..."
+                        disabled={isSubmitting || submitted}
                         value={confirmPassword}
                         onChange={(event) => {
                             setConfirmPassword(event.target.value)
@@ -244,19 +283,71 @@ function SignUpPage() {
                         description={errorMessage} />
                 }
                 {
-                    successMessage &&
-                    <FormSuccess
-                        message={"Account created successfully!"}
-                        description={"You have joined the campus community."} />
-                }
+                    submitted
+                    ? (
+                        <>
+                            {
+                                resendError && (
+                                    <FormError
+                                        message="Could not resend the email."
+                                        description={resendError}
+                                    />
+                                )
+                            }
+                            {
+                                resendMessage && (
+                                    <FormStatus
+                                        message={"Verification email requested."}
+                                        description={resendMessage} />
+                                )
+                            }
+                            {
+                                isEmailVerified && (
+                                    <FormSuccess
+                                        message={"Email verified!"}
+                                        description={"You are officially connected to the campus community! You can now redirect to the homepage."} />
+                                )
+                            }
+                            {
+                                !resendError && !resendMessage && !isEmailVerified && (
+                                    <FormStatus
+                                        message={"Check your email."}
+                                        description={"Click the verification link on your email. Check your spam folder if you do not find it in inbox."} />
+                                )
+                            }
 
-                <CTAButton
-                    text={"Create account"}
-                    type={"submit"}
-                    isDisabled={isSubmitting || submitted}
-                    disabledText={"Creating account..."}
-                    successText={"Account created!"}
-                    isSuccess={submitted} />
+                            {
+                                isEmailVerified
+                                ? (
+                                    <button
+                                        type="button"
+                                        onClick={() => navigate("/")}
+                                        className="cta-button"
+                                    >
+                                        Back to Home page
+                                    </button>
+                                ) : (
+                                    <button
+                                        type="button"
+                                        onClick={handleResendConfirmation}
+                                        disabled={isResending}
+                                        className="cta-button"
+                                    >
+                                        {isResending ? "Requesting email..." : "Resend verification email"}
+                                    </button>
+                                )
+                            }
+                        </>
+                    ) : (
+                        <CTAButton
+                            text={"Create account"}
+                            type={"submit"}
+                            isDisabled={isSubmitting || submitted}
+                            disabledText={"Creating account..."}
+                            successText={"Check email"}
+                            isSuccess={submitted} />
+                    )
+                }
 
                 <BackButton navigateTo={from} />
             </form>

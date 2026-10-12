@@ -4,7 +4,9 @@
     gap: var(--space-sm);
     padding: var(--space-md);
     border-radius: var(--radius-md);
-    
+    background-color: var(--color-border);
+    color: var(--color-text);
+    border: 2px solid var(--color-text);
 }
 
 .form-message {
@@ -16,13 +18,14 @@
 }
 
 .form-error {
-    background-color: var(--color-error-bg);
-    color: var(--color-error);
-    border: 2px solid var(--color-error-border);
+    background-color: var(--color-error-bg) !important;
+    color: var(--color-error) !important;
+    border: 2px solid var(--color-error-border) !important;
 }
 
 .form-success {
-    background-color: var(--color-success-bg);
-    border: 2px solid var(--color-success-border);
-    color: var(--color-success);
+    background-color: var(--color-success-bg) !important;
+    border: 2px solid var(--color-success-border) !important;
+    color: var(--color-success) !important;
 }
+

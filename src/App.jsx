@@ -14,6 +14,7 @@ import MyListings from "./pages/MyListingsPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import SignUpPage from "./pages/SignUpPage.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
+import EmailVerifiedPage from "./pages/EmailVerifiedPage.jsx";
 
 import { getProducts } from "./services/products.js";
 
@@ -32,7 +33,7 @@ function App() {
 	return (
 		<BrowserRouter>
 			<main>
-				<Header	/>
+				<Header />
 
 				<Routes>
 					<Route
@@ -90,6 +91,10 @@ function App() {
 							<ProfilePage />
 						} />
 
+					<Route
+						path="/email-verified"
+						element={<EmailVerifiedPage />}
+					/>
 				</Routes>
 			</main>
 		</BrowserRouter>

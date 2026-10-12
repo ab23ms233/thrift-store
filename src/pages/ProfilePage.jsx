@@ -9,9 +9,18 @@ import Modal from "../components/Modal.jsx"
 import PageHeader from "../components/PageHeader.jsx"
 import { INSTITUTE_EMAIL_DOMAIN } from "../constants.js"
 import { useAuth } from "../context/AuthContext.jsx"
-import { deleteProfile, editProfile, getProfile } from "../services/profile.js"
+import { deleteAccount, editProfile, getProfile } from "../services/profile.js"
 
 import "./ProfilePage.css"
+import { supabase } from "../lib/supabase.js"
+
+function normalizeProfileValues(values) {
+    return {
+        name: values.name.trim(),
+        email: values.email.trim().toLowerCase(),
+        phone: values.phone.trim()
+    }
+}
 
 function ProfilePage() {
     const navigate = useNavigate()
@@ -23,6 +32,11 @@ function ProfilePage() {
     const [name, setName] = useState("")
     const [email, setEmail] = useState("")
     const [phone, setPhone] = useState("")
+    const [initialValues, setInitialValues] = useState({
+        name: "",
+        email: "",
+        phone: ""
+    })
     const [isLoading, setIsLoading] = useState(true)
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [isSaved, setIsSaved] = useState(false)
@@ -48,10 +62,17 @@ function ProfilePage() {
                 const data = await getProfile(user.id)
                 if (!isCurrent) return
 
+                const values = {
+                    name: data.full_name ?? user.user_metadata?.full_name ?? "",
+                    email: data.email ?? user.email ?? "",
+                    phone: data.phone_number ?? data.phone ?? ""
+                }
+
                 setProfile(data)
-                setName(data.full_name ?? user.user_metadata?.full_name ?? "")
-                setEmail(data.email ?? user.email ?? "")
-                setPhone(data.phone_number ?? data.phone ?? "")
+                setName(values.name)
+                setEmail(values.email)
+                setPhone(values.phone)
+                setInitialValues(values)
             } catch (error) {
                 console.error("Could not load profile:", error)
                 if (isCurrent) {
@@ -91,10 +112,15 @@ function ProfilePage() {
     }
 
     function validatePhone(value) {
-        const digits = value.replace(/\D/g, "")
-        const error = digits.length > 0 && digits.length !== 10
-            ? "Enter a phone number with 10 digits."
-            : ""
+        const phone = value.trim().replace(/[()\s.-]/g, "")
+
+        const isIndianLocalNumber = /^\d{10}$/.test(phone)
+        const isInternationalNumber = /^\+[1-9]\d{7,14}$/.test(phone)
+
+        const error =
+            phone && !isIndianLocalNumber && !isInternationalNumber
+                ? "Enter a 10-digit number or an international number starting with + and its country code."
+                : ""
 
         setPhoneError(error)
         return error
@@ -126,7 +152,14 @@ function ProfilePage() {
                 [phoneField]: phone.trim()
             })
 
+            const savedValues = {
+                name: name.trim(),
+                email: email.trim().toLowerCase(),
+                phone: phone.trim()
+            }
+
             setProfile(updatedProfile)
+            setInitialValues(savedValues)
             setIsSaved(true)
             setSuccessMessage("Your profile has been updated.")
         } catch (error) {
@@ -143,7 +176,11 @@ function ProfilePage() {
         setIsDeleting(true)
         setErrorMessage("")
         try {
-            await deleteProfile(user.id)
+            await deleteAccount()
+            const { error } = await supabase.auth.signOut({ scope: "local" })
+            
+            if (error) throw error
+            
             setIsDeleteModalOpen(false)
             navigate("/", { replace: true })
         } catch (error) {
@@ -162,6 +199,12 @@ function ProfilePage() {
     }
 
     const fieldsDisabled = isLoading || !profile
+    const currentValues = normalizeProfileValues({ name, email, phone })
+    const normalizedInitialValues = normalizeProfileValues(initialValues)
+    const hasChanges =
+        currentValues.name !== normalizedInitialValues.name ||
+        currentValues.email !== normalizedInitialValues.email ||
+        currentValues.phone !== normalizedInitialValues.phone
 
     return (
         <section className="section profile-page">
@@ -262,7 +305,7 @@ function ProfilePage() {
                 <CTAButton
                     text="Edit profile"
                     type="submit"
-                    isDisabled={fieldsDisabled || isSubmitting || isSaved}
+                    isDisabled={fieldsDisabled || isSubmitting || isSaved || !hasChanges}
                     disabledText={
                         isLoading
                             ? "Loading profile..."
@@ -290,7 +333,7 @@ function ProfilePage() {
                     onClick={() => setIsDeleteModalOpen(true)}
                     disabled={!user?.id}
                 >
-                    Delete profile
+                    Delete account
                 </button>
             </div>
 
