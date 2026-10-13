@@ -1,8 +1,10 @@
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import { supabase } from "../lib/supabase.js"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 import "../components/Form.css"
+import "../components/PasswordInput.css"
+
 import { useAuth } from "../context/AuthContext.jsx"
 
 import CTAButton from "../components/CTAButton.jsx"
@@ -11,6 +13,7 @@ import { FormError, FormSuccess } from "../components/FormStatus.jsx"
 
 import { formTimeout, INSTITUTE_EMAIL_DOMAIN } from "../constants.js"
 import BackButton from "../components/BackButton.jsx"
+import ShowPasswordButton from "../components/ShowPasswordButton.jsx"
 
 function LoginPage() {
     const navigate = useNavigate()
@@ -20,6 +23,7 @@ function LoginPage() {
 
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
+    const [showPassword, setShowPassword] = useState(false)
 
     const [emailError, setEmailError] = useState("")
     const [passwordError, setPasswordError] = useState("")
@@ -29,6 +33,16 @@ function LoginPage() {
 
     const [isLoggedIn, setLogin] = useState(false)
     const [isLogging, setIsLogging] = useState(false)
+
+    useEffect(() => {
+        if (!isLoggedIn) return
+
+        const redirectTimeout = window.setTimeout(() => {
+            navigate("/", { replace: true })
+        }, formTimeout)
+
+        return () => window.clearTimeout(redirectTimeout)
+    }, [isLoggedIn, navigate])
 
     function validateEmail(email) {
         setEmail(email.trim().toLowerCase())
@@ -88,10 +102,6 @@ function LoginPage() {
             setLoginMessage("Login successful!")
             setLogin(true)
 
-            setTimeout(() => {
-                navigate("/")
-            }, formTimeout)
-
         } catch (error) {
             setErrorMessage(error.message)
         } finally {
@@ -139,23 +149,33 @@ function LoginPage() {
                         Password
                     </label>
 
-                    <input
-                        className="input-box"
-                        id="login-password-input"
-                        type="password"
-                        name="password"
-                        value={password}
-                        onChange={(event) => {
-                            setPassword(event.target.value)
-                            if (passwordError) validatePassword(event.target.value)
-                        }}
-                        onBlur={event => validatePassword(event.target.value)}
-                        autoComplete="current-password"
-                        aria-invalid={Boolean(passwordError)}
-                        aria-describedby={passwordError ? "login-password-error" : undefined}
-                        required
-                        placeholder="Enter password..."
-                    />
+                    <div className="input-wrapper password-input">
+                        <input
+                            className="input-box"
+                            id="login-password-input"
+                            type={showPassword ? "text" : "password"}
+                            name="password"
+                            value={password}
+                            onChange={(event) => {
+                                setPassword(event.target.value)
+                                if (passwordError) validatePassword(event.target.value)
+                            }}
+                            onBlur={event => validatePassword(event.target.value)}
+                            autoComplete="current-password"
+                            aria-invalid={Boolean(passwordError)}
+                            aria-describedby={passwordError ? "login-password-error" : undefined}
+                            required
+                            placeholder="Enter password..."
+                        />
+
+                        {
+                            password && (
+                                <ShowPasswordButton
+                                    showPassword={showPassword}
+                                    setShowPassword={setShowPassword} />
+                            )
+                        }
+                    </div>
                     <a href="/forgot-password">Forgot Password</a>
                     {
                         passwordError && (

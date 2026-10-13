@@ -12,9 +12,12 @@ import { EditProductRoute } from "./pages/EditProductPage.jsx";
 
 import MyListings from "./pages/MyListingsPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage.jsx";
+import ResetPasswordPage from "./pages/ResetPasswordPage.jsx";
 import SignUpPage from "./pages/SignUpPage.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
 import EmailVerifiedPage from "./pages/EmailVerifiedPage.jsx";
+import ChangePasswordPage from "./pages/ChangePasswordPage.jsx";
 
 import { getProducts } from "./services/products.js";
 
@@ -80,6 +83,18 @@ function App() {
 						} />
 
 					<Route
+						path="/forgot-password"
+						element={
+							<ForgotPasswordPage />
+						} />
+
+					<Route
+						path="/reset-password"
+						element={
+							<ResetPasswordPage />
+						} />
+
+					<Route
 						path="/sign-up"
 						element={
 							<SignUpPage />
@@ -90,6 +105,11 @@ function App() {
 						element={
 							<ProfilePage />
 						} />
+
+					<Route
+						path="/change-password"
+						element={<ChangePasswordPage />}
+					/>
 
 					<Route
 						path="/email-verified"

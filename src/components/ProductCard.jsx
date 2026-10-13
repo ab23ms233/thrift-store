@@ -1,9 +1,11 @@
 import { formatTime } from "../utils/formatTime"
 import "./ProductCard.css"
 
-function ProductCard({product, onClick}) {
+function ProductCard({ product, onClick }) {
+    const isSold = product.status === "SOLD"
+
     return (
-        <div className="product-card" onClick={onClick}>
+        <div className={`product-card${isSold ? " sold" : ""}`} onClick={onClick}>
             <img src={product.image_url} alt={product.title} className="product-img" />
 
             <div className="product-info">
@@ -19,6 +21,12 @@ function ProductCard({product, onClick}) {
                 <p className="product-time">
                     {formatTime(product.created_at)}
                 </p>
+
+                {
+                    isSold && (
+                        <span className="sold-label">Sold</span>
+                    )
+                }
             </div>
         </div>
     )

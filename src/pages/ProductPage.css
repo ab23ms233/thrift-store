@@ -92,7 +92,6 @@
     padding: var(--space-md) 0;
 }
 
-.product-page__description h3,
 .product-page__owner-field h3 {
     margin: 0;
     font-size: 0.875rem;
@@ -102,7 +101,6 @@
 
 .product-page__description p {
     margin-top: var(--space-xs);
-    color: var(--color-muted);
     font-size: 0.875rem;
     line-height: 1.5;
     overflow-wrap: anywhere;
@@ -120,6 +118,7 @@
 .product-page__field-label {
     color: var(--color-muted);
     font-weight: 400;
+    font-size: 0.875rem;
 }
 
 .product-page__posted time {
@@ -244,4 +243,27 @@
     .product-page__details {
         align-self: center;
     }
+}
+
+.product-page__contacts-cont {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.product-page__contact-cont {
+    display: flex;
+    flex-direction: row;
+    gap: var(--space-sm);
+    align-items: center;
+}
+
+.product-page__contact-icon {
+    height: 20px;
+    width: 20px;
+    color: var(--color-muted);
+}
+
+#product-page__email-icon {
+    margin-top: 5px;
 }

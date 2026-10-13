@@ -1,17 +1,18 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 
 import "../components/Form.css"
-import "./SignUpPage.css"
+import "../components/PasswordInput.css"
 
-import { INSTITUTE_EMAIL_DOMAIN } from "../constants.js"
+import { INSTITUTE_EMAIL_DOMAIN, RESEND_TIMER } from "../constants.js"
 import CTAButton from "../components/CTAButton";
 
 import PageHeader from "../components/PageHeader.jsx";
 import { FormError, FormStatus, FormSuccess } from "../components/FormStatus.jsx";
 import BackButton from "../components/BackButton.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
+import ShowPasswordButton from "../components/ShowPasswordButton.jsx";
 
 function SignUpPage() {
     const navigate = useNavigate()
@@ -38,9 +39,79 @@ function SignUpPage() {
     const [resendMessage, setResendMessage] = useState("");
     const [resendError, setResendError] = useState("");
 
-    const isEmailVerified = 
+    const [resendCooldownUntil, setResendCooldownUntil] = useState(0);
+    const [resendSecondsLeft, setResendSecondsLeft] = useState(0);
+
+    const [showPassword, setShowPassword] = useState(false)
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+
+    const resendCooldownKey = email.trim()
+        ? `signup-resend-cooldown:${email.trim().toLowerCase()}`
+        : null;
+
+    const isEmailVerified =
         user?.email?.toLowerCase() === email.trim().toLowerCase() &&
         Boolean(user.email_confirmed_at)
+
+    /* Restore any existing cooldown for this email address */
+    useEffect(() => {
+        if (!submitted || !resendCooldownKey) return;
+
+        const savedDeadline = Number(
+            localStorage.getItem(resendCooldownKey) || 0
+        );
+
+        if (savedDeadline > Date.now()) {
+            setResendCooldownUntil(savedDeadline);
+        } else {
+            localStorage.removeItem(resendCooldownKey);
+            setResendCooldownUntil(0);
+        }
+    }, [submitted, resendCooldownKey]);
+
+    /* Keep the countdown synchronized with the deadline */
+    useEffect(() => {
+        if (!resendCooldownUntil) {
+            setResendSecondsLeft(0);
+            return;
+        }
+
+        const updateCountdown = () => {
+            const remaining = Math.max(
+                0,
+                Math.ceil((resendCooldownUntil - Date.now()) / 1000)
+            );
+
+            setResendSecondsLeft(remaining);
+
+            if (remaining === 0) {
+                clearInterval(intervalId)
+
+                if (resendCooldownKey) {
+                    localStorage.removeItem(resendCooldownKey);
+                }
+            }
+        };
+
+        const intervalId = setInterval(updateCountdown, 1000);
+        updateCountdown();
+
+        return () => clearInterval(intervalId);
+    }, [resendCooldownUntil, resendCooldownKey]);
+
+    function startResendCooldown() {
+        const deadline =
+            Date.now() + RESEND_TIMER * 1000;
+
+        if (resendCooldownKey) {
+            localStorage.setItem(
+                resendCooldownKey,
+                String(deadline)
+            );
+        }
+
+        setResendCooldownUntil(deadline);
+    }
 
     function validateName(value) {
         setName(value.trim())
@@ -127,7 +198,7 @@ function SignUpPage() {
     }
 
     async function handleResendConfirmation() {
-        if (!email || isResending) return;
+        if (!email || isResending || resendSecondsLeft > 0) return;
 
         setIsResending(true);
         setResendMessage("");
@@ -146,6 +217,8 @@ function SignUpPage() {
                 setResendError(error.message);
                 return;
             }
+
+            startResendCooldown()
 
             setResendMessage(
                 "If this address has an unconfirmed account, a new verification email has been requested. Check your inbox and spam folder."
@@ -224,22 +297,34 @@ function SignUpPage() {
                         Set Password
                     </label>
 
-                    <input
-                        className={`input-box${passwordError ? " input-box--error" : ""}`}
-                        id="signup-password-input"
-                        type="password"
-                        disabled={isSubmitting || submitted}
-                        placeholder="Set your password..."
-                        value={password}
-                        onChange={(event) => {
-                            setPassword(event.target.value)
-                            if (passwordError) validatePassword(event.target.value)
-                        }}
-                        onBlur={event => validatePassword(event.target.value)}
-                        autoComplete="new-password"
-                        aria-invalid={Boolean(passwordError)}
-                        aria-describedby={passwordError ? "signup-password-error" : undefined}
-                        required />
+                    <div className="input-wrapper password-input">
+                        <input
+                            className={`input-box${passwordError ? " input-box--error" : ""} password-input`}
+                            id="signup-password-input"
+                            type={showPassword ? "text" : "password"}
+                            disabled={isSubmitting || submitted}
+                            placeholder="Set your password..."
+                            value={password}
+                            onChange={(event) => {
+                                setPassword(event.target.value)
+                                if (passwordError) validatePassword(event.target.value)
+                            }}
+                            onBlur={event => validatePassword(event.target.value)}
+                            autoComplete="new-password"
+                            aria-invalid={Boolean(passwordError)}
+                            aria-describedby={passwordError ? "signup-password-error" : undefined}
+                            required />
+
+                        {
+                            password && (
+                                <ShowPasswordButton
+                                    showPassword={showPassword}
+                                    setShowPassword={setShowPassword}
+                                />
+                            )
+                        }
+                    </div>
+
                     {passwordError && (
                         <span className="field-error" id="signup-password-error">
                             {passwordError}
@@ -251,11 +336,12 @@ function SignUpPage() {
                     <label htmlFor="signup-confirm-password-input">
                         Confirm Password
                     </label>
-
+                    
+                    <div className="input-wrapper password-input">
                     <input
                         className={`input-box${confirmPasswordError ? " input-box--error" : ""}`}
                         id="signup-confirm-password-input"
-                        type="password"
+                        type={showConfirmPassword ? "text" : "password"}
                         placeholder="Confirm your password..."
                         disabled={isSubmitting || submitted}
                         value={confirmPassword}
@@ -268,6 +354,15 @@ function SignUpPage() {
                         aria-invalid={Boolean(confirmPasswordError)}
                         aria-describedby={confirmPasswordError ? "signup-confirm-password-error" : undefined}
                         required />
+
+                        {
+                            confirmPassword && (
+                                <ShowPasswordButton
+                                    showPassword={showConfirmPassword}
+                                    setShowPassword={setShowConfirmPassword} />
+                            )
+                        }
+                    </div>
                     {confirmPasswordError && (
                         <span className="field-error" id="signup-confirm-password-error">
                             {confirmPasswordError}
@@ -284,69 +379,73 @@ function SignUpPage() {
                 }
                 {
                     submitted
-                    ? (
-                        <>
-                            {
-                                resendError && (
-                                    <FormError
-                                        message="Could not resend the email."
-                                        description={resendError}
-                                    />
-                                )
-                            }
-                            {
-                                resendMessage && (
-                                    <FormStatus
-                                        message={"Verification email requested."}
-                                        description={resendMessage} />
-                                )
-                            }
-                            {
-                                isEmailVerified && (
-                                    <FormSuccess
-                                        message={"Email verified!"}
-                                        description={"You are officially connected to the campus community! You can now redirect to the homepage."} />
-                                )
-                            }
-                            {
-                                !resendError && !resendMessage && !isEmailVerified && (
-                                    <FormStatus
-                                        message={"Check your email."}
-                                        description={"Click the verification link on your email. Check your spam folder if you do not find it in inbox."} />
-                                )
-                            }
+                        ? (
+                            <>
+                                {
+                                    resendError && (
+                                        <FormError
+                                            message="Could not resend the email."
+                                            description={resendError}
+                                        />
+                                    )
+                                }
+                                {
+                                    resendMessage && (
+                                        <FormStatus
+                                            message={"Verification email requested."}
+                                            description={resendMessage} />
+                                    )
+                                }
+                                {
+                                    isEmailVerified && (
+                                        <FormSuccess
+                                            message={"Email verified!"}
+                                            description={"You are officially connected to the campus community! You can now redirect to the homepage."} />
+                                    )
+                                }
+                                {
+                                    !resendError && !resendMessage && !isEmailVerified && (
+                                        <FormStatus
+                                            message={"Check your email."}
+                                            description={"Click the verification link on your email. Check your spam folder if you do not find it in inbox."} />
+                                    )
+                                }
 
-                            {
-                                isEmailVerified
-                                ? (
-                                    <button
-                                        type="button"
-                                        onClick={() => navigate("/")}
-                                        className="cta-button"
-                                    >
-                                        Back to Home page
-                                    </button>
-                                ) : (
-                                    <button
-                                        type="button"
-                                        onClick={handleResendConfirmation}
-                                        disabled={isResending}
-                                        className="cta-button"
-                                    >
-                                        {isResending ? "Requesting email..." : "Resend verification email"}
-                                    </button>
-                                )
-                            }
-                        </>
-                    ) : (
-                        <CTAButton
-                            text={"Create account"}
-                            type={"submit"}
-                            isDisabled={isSubmitting || submitted}
-                            disabledText={"Creating account..."}
-                            successText={"Check email"}
-                            isSuccess={submitted} />
-                    )
+                                {
+                                    isEmailVerified
+                                        ? (
+                                            <button
+                                                type="button"
+                                                onClick={() => navigate("/")}
+                                                className="cta-button"
+                                            >
+                                                Back to Home page
+                                            </button>
+                                        ) : (
+                                            <button
+                                                type="button"
+                                                onClick={handleResendConfirmation}
+                                                disabled={isResending || resendSecondsLeft > 0}
+                                                className="cta-button"
+                                            >
+                                                {isResending
+                                                    ? "Requesting email..."
+                                                    : resendSecondsLeft > 0
+                                                        ? `Resend email in ${resendSecondsLeft}s`
+                                                        : "Resend verification email"}
+                                            </button>
+                                        )
+                                }
+                            </>
+                        ) : (
+                            <CTAButton
+                                text={"Create account"}
+                                type={"submit"}
+                                isDisabled={isSubmitting || submitted}
+                                disabledText={"Creating account..."}
+                                successText={"Check email"}
+                                isSuccess={submitted} />
+                        )
                 }
 
                 <BackButton navigateTo={from} />

@@ -10,7 +10,6 @@ import PageHeader from "../components/PageHeader.jsx"
 import BackButton from "../components/BackButton.jsx"
 import { getProfile } from "../services/profile.js"
 import CTAButton from "../components/CTAButton.jsx"
-import { formTimeout } from "../constants.js"
 import { FormError } from "../components/FormStatus.jsx"
 
 export function ProductRoute({
@@ -75,6 +74,7 @@ function ProductPage({
             ? "Sold"
             : product.status
     const ownerEmail = userProfile?.email
+    const ownerPhone = userProfile?.phone
     const postedDate = new Date(product.created_at).toLocaleDateString(
         "en-GB",
         { day: "numeric", month: "long", year: "numeric" }
@@ -104,9 +104,6 @@ function ProductPage({
             await markProductAsSold(product.id, user.id)
             setMarkedAsSold(true)
             await onProductsChanged()
-            setTimeout(() => {
-                navigate(from)
-            }, formTimeout)
         } catch (error) {
             console.error("Error marking product as sold:", product.id, error)
             setErrorMessage(error)
@@ -142,7 +139,7 @@ function ProductPage({
                     </div>
 
                     <section className="product-page__description">
-                        <h3>Description</h3>
+                        <h3 className="product-page__field-label">Description</h3>
                         <p>{product.description}</p>
                     </section>
 
@@ -157,10 +154,53 @@ function ProductPage({
                             <p>{userProfile?.full_name ?? "Name currently not available."}</p>
                         </div>
                         <div className="product-page__owner-field">
-                            <h3 className="product-page__field-label">Contact owner (email)</h3>
-                            {ownerEmail
-                                ? <a href={`mailto:${ownerEmail}`}>{ownerEmail}</a>
-                                : <p className="product-page__email-unavailable">Email unavailable</p>}
+                            <h3 className="product-page__field-label">Contact owner</h3>
+                            <div className="product-page__contacts-cont">
+                                <div className="product-page__contact-cont">
+                                    <svg
+                                        className="product-page__contact-icon"
+                                        id="product-page__email-icon"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="1.8"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        role="img"
+                                        aria-label="Email"
+                                    >
+                                        <rect x="3" y="5" width="18" height="14" rx="2" />
+                                        <path d="m3 7 9 6 9-6" />
+                                    </svg>
+                                    {ownerEmail
+                                        ? <a href={`mailto:${ownerEmail}`}>{ownerEmail}</a>
+                                        : <p className="product-page__email-unavailable">Email unavailable</p>}
+
+                                </div>
+
+                                <div className="product-page__contact-cont">
+                                    <svg
+                                        className="product-page__contact-icon"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="1.8"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        role="img"
+                                        aria-label="Phone"
+                                    >
+                                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.12 4.2 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.96.35 1.9.69 2.8a2 2 0 0 1-.45 2.11L8.08 9.92a16 16 0 0 0 6 6l1.29-1.27a2 2 0 0 1 2.11-.45c.9.34 1.84.57 2.8.69A2 2 0 0 1 22 16.92z" />
+                                    </svg>
+                                    {ownerPhone
+                                        ? <p className="product-page__phone-number">
+                                            {ownerPhone}</p>
+                                        : <p className="product-page__phone-unavailable">
+                                            Phone number unavailable
+                                        </p>
+                                    }
+                                </div>
+                            </div>
                         </div>
                     </section>
                 </div>
