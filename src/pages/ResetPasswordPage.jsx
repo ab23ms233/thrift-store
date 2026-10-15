@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 
-import CTAButton from "../components/CTAButton.jsx"
-import "../components/Form.css"
-import "../components/PasswordInput.css"
+import CTAButton from "../components/button/CTAButton.jsx"
+import "../components/common/Form.css"
+import "../components/common/PasswordInput.css"
 
-import { FormError, FormSuccess } from "../components/FormStatus.jsx"
-import PageHeader from "../components/PageHeader.jsx"
+import { FormError, FormSuccess } from "../components/common/FormStatus.jsx"
+import PageHeader from "../components/common/PageHeader.jsx"
 import { supabase } from "../lib/supabase.js"
 import { formTimeout } from "../constants.js"
-import ShowPasswordButton from "../components/ShowPasswordButton.jsx"
+import ShowPasswordButton from "../components/button/ShowPasswordButton.jsx"
 
 function ResetPasswordPage() {
     const navigate = useNavigate()

@@ -172,3 +172,21 @@ export async function markProductAsSold(productId, userId) {
 
     return updatedProduct
 }
+
+export async function markProductAsUnsold(productId, userId) {
+    const unsoldProduct = { 
+        status: "AVAILABLE"
+    }
+
+    const { data, error } = await supabase
+        .from("products")
+        .update(unsoldProduct)
+        .eq("id", productId)
+        .eq("owner_id", userId)
+        .select()
+        .single()
+    
+    if (error) throw error
+
+    return data  
+}

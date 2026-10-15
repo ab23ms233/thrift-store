@@ -2,17 +2,17 @@ import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 
-import "../components/Form.css"
-import "../components/PasswordInput.css"
+import "../components/common/Form.css"
+import "../components/common/PasswordInput.css"
 
 import { INSTITUTE_EMAIL_DOMAIN, RESEND_TIMER } from "../constants.js"
-import CTAButton from "../components/CTAButton";
+import CTAButton from "../components/button/CTAButton";
 
-import PageHeader from "../components/PageHeader.jsx";
-import { FormError, FormStatus, FormSuccess } from "../components/FormStatus.jsx";
-import BackButton from "../components/BackButton.jsx";
+import PageHeader from "../components/common/PageHeader.jsx";
+import { FormError, FormStatus, FormSuccess } from "../components/common/FormStatus.jsx";
+import BackButton from "../components/button/BackButton.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
-import ShowPasswordButton from "../components/ShowPasswordButton.jsx";
+import ShowPasswordButton from "../components/button/ShowPasswordButton.jsx";
 
 function SignUpPage() {
     const navigate = useNavigate()

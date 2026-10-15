@@ -4,7 +4,7 @@ import { supabase } from "../lib/supabase";
 import { formTimeout } from "../constants";
 
 import "./EmailVerifiedPage.css"
-import { FormError, FormStatus, FormSuccess } from "../components/FormStatus";
+import { FormError, FormStatus, FormSuccess } from "../components/common/FormStatus";
 
 function hasCallbackError(search, hash) {
     const queryParams = new URLSearchParams(search)

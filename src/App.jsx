@@ -4,7 +4,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "./App.css"
 import { ProductRoute } from "./pages/ProductPage.jsx";
 
-import Header from "./components/Header.jsx";
+import Header from "./components/common/Header.jsx";
 
 import HomePage from "./pages/HomePage.jsx";
 import SellProductPage from "./pages/SellProductPage.jsx";

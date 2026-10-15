@@ -1,7 +1,7 @@
-import CategorySection from "../components/CategorySection.jsx"
-import ProductGrid from "../components/ProductGrid.jsx"
-import SearchBar from "../components/SearchBar.jsx"
-import SellButton from "../components/SellButton.jsx"
+import CategorySection from "../components/category/CategorySection.jsx"
+import ProductGrid from "../components/product/ProductGrid.jsx"
+import SearchBar from "../components/common/SearchBar.jsx"
+import SellButton from "../components/button/SellButton.jsx"
 
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"

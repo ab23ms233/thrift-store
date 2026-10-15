@@ -1,12 +1,14 @@
 import "./ProductForm.css"
-import "./Form.css"
+import "../common/Form.css"
 import { useEffect, useState } from "react"
 
-import { getCategories } from "../services/categories.js";
-import CTAButton from "./CTAButton.jsx"
+import { getCategories } from "../../services/categories.js";
+import CTAButton from "../button/CTAButton.jsx"
 
-import { FormError, FormSuccess } from "./FormStatus.jsx";
-import "./FormStatus.css"
+import { FormError, FormSuccess } from "../common/FormStatus.jsx";
+import "../common/FormStatus.css"
+import BackButton from "../button/BackButton.jsx";
+import { useLocation } from "react-router-dom";
 
 function ProductForm({ 
     initialProduct, 
@@ -31,6 +33,9 @@ function ProductForm({
 
     const [categories, setCategories] = useState([])
     const [isSubmitting, setIsSubmitting] = useState(false)
+
+    const location = useLocation()
+    const from = location.state?.from || "/"
 
     useEffect(() => {
         async function fetchCategories() {
@@ -254,6 +259,8 @@ function ProductForm({
                 disabledText="Saving..."
                 isSuccess={formSuccess}
                 successText={"Saved"} />
+            
+            <BackButton navigateTo={from} />
         </form>
     )
 }

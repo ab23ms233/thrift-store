@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom"
 import { useAuth } from "../context/AuthContext.jsx"
 import "./MyListings.css"
 
-import ProductGrid from "../components/ProductGrid.jsx"
+import ProductGrid from "../components/product/ProductGrid.jsx"
 
 function MyListings({ products }) {
     const navigate = useNavigate()

@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom"
-import { useAuth } from "../context/AuthContext"
-import { supabase } from "../lib/supabase"
+import { useAuth } from "../../context/AuthContext"
+import { supabase } from "../../lib/supabase"
 
 import "./Header.css"
 import { useEffect, useRef, useState } from "react"

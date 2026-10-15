@@ -1,10 +1,11 @@
 import { useNavigate, useParams } from "react-router-dom";
-import ProductForm from "../components/ProductForm.jsx";
+import ProductForm from "../components/product/ProductForm.jsx";
 import { editProduct } from "../services/products.js";
 import { useAuth } from "../context/AuthContext.jsx";
 
-import PageHeader from "../components/PageHeader.jsx";
+import PageHeader from "../components/common/PageHeader.jsx";
 import { formTimeout } from "../constants.js";
+import { useEffect, useState } from "react";
 
 export function EditProductRoute({ products, onEditProduct }) {
     const { productId } = useParams()
@@ -21,12 +22,22 @@ export function EditProductRoute({ products, onEditProduct }) {
 function EditProductPage({ product, onEditProduct }) {
     const navigate = useNavigate()
     const { user } = useAuth()
+    const [isUpdated, setIsUpdated] = useState(false)
+
+    useEffect(() => {
+        if (!isUpdated) return
+
+        const redirectTimeout = window.setTimeout(() => {
+            navigate(`/products/${product.id}`)
+        }, formTimeout)
+
+        return () => window.clearTimeout(redirectTimeout)
+    }, [isUpdated, navigate, product.id])
 
     async function handleSubmit(fields) {
         await editProduct(product.id, fields, user.id)
         await onEditProduct()
-
-        setTimeout(() => navigate(`/products/${product.id}`), formTimeout)
+        setIsUpdated(true)
     }
 
     return (

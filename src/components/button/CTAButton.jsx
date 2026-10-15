@@ -11,6 +11,8 @@ function CTAButton({
 }) {
     const buttonText = isSuccess
         ? successText
+            ? successText
+            : text
         : isDisabled
             ? disabledText
             : text

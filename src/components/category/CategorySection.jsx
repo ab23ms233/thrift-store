@@ -1,10 +1,20 @@
 import CategoryCard from "./CategoryCard.jsx"
-import allIconUrl from "../assets/category-icons/Group.svg"
+import allIconUrl from "../../assets/category-icons/Group.svg"
 import "./CategorySection.css"
 
 function CategorySection({ products, selectedCategory, setSelectedCategory }) {
+    const seeNames = new Set()
+    const uniqueCategories = products
+        .map(product => product.category)
+        .filter(category => {
+            const key = category.name.trim().toLowerCase()
+
+            if (seeNames.has(key)) return false
+            seeNames.add(key)
+            return true
+        })
     const categories = [
-		...products.map(product => product.category),
+		...uniqueCategories,
         {
             name: "All",
             iconUrl: allIconUrl

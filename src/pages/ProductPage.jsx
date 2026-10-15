@@ -2,15 +2,15 @@ import { useEffect, useState } from "react"
 import { useLocation, useParams } from "react-router-dom"
 import { useNavigate } from "react-router-dom"
 import "./ProductPage.css"
-import "../components/CTAButton.css"
-import Modal from "../components/Modal.jsx"
+import "../components/button/CTAButton.css"
+import Modal from "../components/common/Modal.jsx"
 import { useAuth } from "../context/AuthContext.jsx"
-import { deleteProduct, markProductAsSold } from "../services/products.js"
-import PageHeader from "../components/PageHeader.jsx"
-import BackButton from "../components/BackButton.jsx"
+import { deleteProduct, markProductAsSold, markProductAsUnsold } from "../services/products.js"
+import PageHeader from "../components/common/PageHeader.jsx"
+import BackButton from "../components/button/BackButton.jsx"
 import { getProfile } from "../services/profile.js"
-import CTAButton from "../components/CTAButton.jsx"
-import { FormError } from "../components/FormStatus.jsx"
+import CTAButton from "../components/button/CTAButton.jsx"
+import { FormError, FormSuccess } from "../components/common/FormStatus.jsx"
 
 export function ProductRoute({
     products,
@@ -32,7 +32,6 @@ function ProductPage({
     product,
     onProductsChanged
 }) {
-    const location = useLocation()
     const navigate = useNavigate()
     const { user } = useAuth()
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
@@ -45,6 +44,10 @@ function ProductPage({
     const [profileError, setProfileError] = useState(null)
 
     const [errorMessage, setErrorMessage] = useState("")
+    const [showMessage, setShowMessage] = useState(false)
+
+    const location = useLocation()
+    const from = location.state?.from || "/"
 
     useEffect(() => {
         let isCurrent = true
@@ -65,7 +68,6 @@ function ProductPage({
         }
     }, [product.owner_id])
 
-    const from = location.state?.from || "/"
     const isOwner = user?.id === product.owner_id
     const isAvailable = product.status === "AVAILABLE"
     const statusLabel = isAvailable
@@ -80,7 +82,14 @@ function ProductPage({
         { day: "numeric", month: "long", year: "numeric" }
     )
 
+    function isProductSold() {
+        return product.status === "SOLD"
+            ? true
+            : false
+    }
+
     async function handleDelete() {
+        setShowMessage(false)
         setIsDeleting(true)
 
         try {
@@ -97,18 +106,26 @@ function ProductPage({
     }
 
     async function handleSold() {
+        setShowMessage(false)
+
+        const caller = 
+            product.status === "AVAILABLE"
+                ? markProductAsSold
+                : markProductAsUnsold
+
         setMarkedAsSold(false)
         setIsMarkingAsSold(true)
 
         try {
-            await markProductAsSold(product.id, user.id)
+            await caller(product.id, user.id)
             setMarkedAsSold(true)
             await onProductsChanged()
         } catch (error) {
-            console.error("Error marking product as sold:", product.id, error)
+            console.error("Error changing product status:", product.id, error)
             setErrorMessage(error)
         } finally {
-            setIsMarkingAsSold(true)
+            setIsMarkingAsSold(false)
+            setShowMessage(true)
         }
     }
 
@@ -205,6 +222,22 @@ function ProductPage({
                     </section>
                 </div>
             </article>
+            
+            {
+                showMessage && (
+                    <FormSuccess
+                        message={
+                            isProductSold()
+                                ? "Product sold!"
+                                : "Your product is back!"
+                        }
+                        description={
+                            isProductSold()
+                                ? "Your product has been marked as sold."
+                                : "Your product is live on campus."
+                        } />
+                )
+            }
 
             <div className="product-page__actions">
                 {isOwner && (
@@ -213,7 +246,10 @@ function ProductPage({
                             type="button"
                             className="product-page__button product-page__button--secondary"
                             id="edit-button"
-                            onClick={() => navigate(`/products/${product.id}/edit`)}
+                            onClick={() => {
+                                setShowMessage(false)
+                                navigate(`/products/${product.id}/edit`, { state: { from: location.pathname }})
+                            }}
                         >
                             Edit
                         </button>
@@ -221,17 +257,22 @@ function ProductPage({
                             type="button"
                             className="product-page__button product-page__button--secondary"
                             id="delete-button"
-                            onClick={() => setIsDeleteModalOpen(true)}
+                            onClick={() => {
+                                setShowMessage(false)
+                                setIsDeleteModalOpen(true)
+                            }}
                         >
                             Delete
                         </button>
 
                         <CTAButton
-                            text={"Mark as sold"}
+                            text={ product.status === "AVAILABLE"
+                                    ? "Mark as sold"
+                                    : "Mark as unsold"
+                            }
                             type={"button"}
-                            isDisabled={isMarkingAsSold || markedAsSold}
+                            isDisabled={isMarkingAsSold}
                             disabledText={"Changing status..."}
-                            successText={"Product sold!"}
                             isSuccess={markedAsSold}
                             onClick={handleSold} />
                     </div>

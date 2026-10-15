@@ -1,10 +1,10 @@
 import { useState } from "react"
 import { Link } from "react-router-dom"
 
-import CTAButton from "../components/CTAButton.jsx"
-import "../components/Form.css"
-import { FormError, FormSuccess } from "../components/FormStatus.jsx"
-import PageHeader from "../components/PageHeader.jsx"
+import CTAButton from "../components/button/CTAButton.jsx"
+import "../components/common/Form.css"
+import { FormError, FormSuccess } from "../components/common/FormStatus.jsx"
+import PageHeader from "../components/common/PageHeader.jsx"
 import { supabase } from "../lib/supabase.js"
 
 function ForgotPasswordPage() {
