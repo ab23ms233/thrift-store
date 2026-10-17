@@ -9,6 +9,7 @@ import { FormError, FormSuccess } from "../common/FormStatus.jsx";
 import "../common/FormStatus.css"
 import BackButton from "../button/BackButton.jsx";
 import { useLocation } from "react-router-dom";
+import { MAX_FILE_SIZE } from "../../constants.js";
 
 function ProductForm({ 
     initialProduct, 
@@ -79,7 +80,7 @@ function ProductForm({
             error = "Please add a product image."
         } else if (file && !file.type.startsWith("image/")) {
             error = "Please choose an image file."
-        } else if (file && file.size > 5 * 1024 * 1024) {
+        } else if (file && file.size > MAX_FILE_SIZE * 1024 * 1024) {
             error = "Image must be 5 MB or smaller."
         }
 
@@ -215,7 +216,7 @@ function ProductForm({
                     
                     </strong>
                     <span className="upload-hint">
-                        JPG/PNG/JPEG · Up to 5 MB
+                        JPG/PNG/JPEG · Up to {MAX_FILE_SIZE} MB
                     
                     </span>
                     <input

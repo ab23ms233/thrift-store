@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 
 import "./App.css"
 import { ProductRoute } from "./pages/ProductPage.jsx";
 
 import Header from "./components/common/Header.jsx";
+import BotttomNav from "./components/common/BotttomNav.jsx";
 
 import HomePage from "./pages/HomePage.jsx";
 import SellProductPage from "./pages/SellProductPage.jsx";
@@ -20,8 +21,20 @@ import EmailVerifiedPage from "./pages/EmailVerifiedPage.jsx";
 import ChangePasswordPage from "./pages/ChangePasswordPage.jsx";
 
 import { getProducts } from "./services/products.js";
+import ProtectedRoute from "./components/common/ProtectedRoute.jsx";
 
-function App() {
+function AppShell() {
+	const location = useLocation()
+	const authPages = [
+		"/login",
+		"/forgot-password",
+		"/reset-password",
+		"/sign-up",
+		"/email-verified",
+		"/change-password"
+	]
+	const shouldShowBottomNav = !authPages.includes(location.pathname)
+
 	const [products, setProducts] = useState([])
 
 	async function fetchProducts() {
@@ -34,31 +47,16 @@ function App() {
 	}, [])
 
 	return (
-		<BrowserRouter>
-			<main>
-				<Header />
+		<main style={{ paddingBottom: shouldShowBottomNav ? "90px" : undefined }}>
+			<Header />
 
-				<Routes>
-					<Route
-						path="/"
-						element={
-							<HomePage
-								products={products} />
-						} />
-
+			<Routes>
+				<Route element={<ProtectedRoute />}>
 					<Route
 						path="/sell"
 						element={
 							<SellProductPage
 								onListProduct={fetchProducts} />
-						} />
-
-					<Route
-						path="/products/:productId"
-						element={
-							<ProductRoute
-								products={products}
-								onProductsChanged={fetchProducts} />
 						} />
 
 					<Route
@@ -77,30 +75,6 @@ function App() {
 						} />
 
 					<Route
-						path="/login"
-						element={
-							<LoginPage />
-						} />
-
-					<Route
-						path="/forgot-password"
-						element={
-							<ForgotPasswordPage />
-						} />
-
-					<Route
-						path="/reset-password"
-						element={
-							<ResetPasswordPage />
-						} />
-
-					<Route
-						path="/sign-up"
-						element={
-							<SignUpPage />
-						} />
-
-					<Route
 						path="/profile"
 						element={
 							<ProfilePage />
@@ -112,12 +86,62 @@ function App() {
 					/>
 
 					<Route
-						path="/email-verified"
-						element={<EmailVerifiedPage />}
-					/>
-				</Routes>
-			</main>
-		</BrowserRouter>
+					path="/reset-password"
+					element={
+						<ResetPasswordPage />
+					} />
+				</Route>
+
+				<Route
+					path="/"
+					element={
+						<HomePage
+							products={products} />
+					} />
+
+				<Route
+					path="/products/:productId"
+					element={
+						<ProductRoute
+							products={products}
+							onProductsChanged={fetchProducts} />
+					} />
+
+				<Route
+					path="/login"
+					element={
+						<LoginPage />
+					} />
+
+				<Route
+					path="/forgot-password"
+					element={
+						<ForgotPasswordPage />
+					} />
+
+				<Route
+					path="/sign-up"
+					element={
+						<SignUpPage />
+					} />
+
+				<Route
+					path="/email-verified"
+					element={<EmailVerifiedPage />}
+				/>
+
+			</Routes>
+
+			{shouldShowBottomNav && <BotttomNav />}
+		</main>
+	)
+}
+
+function App() {
+	return (
+		<BrowserRouter>
+			<AppShell />
+		</BrowserRouter >
 	)
 }
 

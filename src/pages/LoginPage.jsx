@@ -18,7 +18,7 @@ import ShowPasswordButton from "../components/button/ShowPasswordButton.jsx"
 function LoginPage() {
     const navigate = useNavigate()
     const location = useLocation()
-    const from = location?.state ?? "/"
+    const from = location?.state?.from?.pathname ?? "/"
     const { setUser } = useAuth()
 
     const [email, setEmail] = useState("")
@@ -38,11 +38,11 @@ function LoginPage() {
         if (!isLoggedIn) return
 
         const redirectTimeout = window.setTimeout(() => {
-            navigate("/", { replace: true })
+            navigate(from, { replace: true })
         }, formTimeout)
 
         return () => window.clearTimeout(redirectTimeout)
-    }, [isLoggedIn, navigate])
+    }, [isLoggedIn, navigate, from])
 
     function validateEmail(email) {
         setEmail(email.trim().toLowerCase())
