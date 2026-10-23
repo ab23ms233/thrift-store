@@ -25,7 +25,7 @@ function SellProductPage({ onListProduct }) {
     }, [createdProductId, navigate])
 
     async function handleSubmit(product) {
-        if (!product.image) {
+        if (!product.images) {
             throw new Error("A product image is required.")
         }
         const createdProduct = await addProduct(product, user.id)

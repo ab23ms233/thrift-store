@@ -27,22 +27,31 @@ export async function getProducts() {
 }
 
 export async function addProduct(product, userId) {
-    const fileExt = product.image.name.split(".").pop();
-    const imagePath = `${userId}/${crypto.randomUUID()}.${fileExt}`;
-
     if (!Object.hasOwn(product, "id")) {
         product.id = crypto.randomUUID()
     }
 
-    const { error: uploadError } = await supabase.storage
-        .from("product-images")
-        .upload(imagePath, product.image);
+    const uploadedImages = await Promise.all(
+        product.images.map(async (file) => {
+            const extension = file.name.split(".").pop()
+            const imagePath = `${userId}/${crypto.randomUUID()}.${extension}`
 
-    if (uploadError) throw uploadError;
+            const { error: uploadError } = await supabase.storage
+                .from("product-images")
+                .upload(imagePath, file)
 
-    const imageUrl = supabase.storage
-        .from("product-images")
-        .getPublicUrl(imagePath).data.publicUrl;
+            if (uploadError) throw uploadError
+
+            const imageUrl = supabase.storage
+                .from("product-images")
+                .getPublicUrl(imagePath).data.publicUrl
+
+            return { imagePath, imageUrl }
+        })
+    )
+
+    const imageUrls = uploadedImages.map(image => image.imageUrl)
+    const imagePaths = uploadedImages.map(image => image.imagePath)
 
     const { data: addedProduct, error: insertError } = await supabase
         .from("products")
@@ -52,8 +61,10 @@ export async function addProduct(product, userId) {
             price: Number(product.price),
             category_id: product.categoryId,
             owner_id: userId,
-            image_url: imageUrl,
-            image_path: imagePath,
+            image_url: uploadedImages[0].imageUrl,
+            image_path: uploadedImages[0].imagePath,
+            image_urls: imageUrls,
+            image_paths: imagePaths,
             status: "AVAILABLE",
         })
         .select()
@@ -114,10 +125,10 @@ export async function editProduct(productId, fields, userId) {
     if (updateError) throw updateError
 
     if (fields.image && existingProduct.image_path) {
-        const { error: removeError } = 
-        await supabase.storage
-            .from("product-images")
-            .remove([existingProduct.image_path])
+        const { error: removeError } =
+            await supabase.storage
+                .from("product-images")
+                .remove([existingProduct.image_path])
 
         if (removeError) {
             console.error("Could not remove old image for product:", updatedProduct.id, removeError)
@@ -142,14 +153,14 @@ export async function deleteProduct(productId, userId) {
         .delete()
         .eq("id", productId)
         .eq("owner_id", userId)
-    
+
     if (deleteError) throw deleteError
 
     if (product.image_path) {
         const { error: storageError } = await supabase.storage
             .from("product-images")
             .remove([product.image_path])
-        
+
         if (storageError) throw storageError
     }
 }
@@ -159,7 +170,7 @@ export async function markProductAsSold(productId, userId) {
         status: "SOLD"
     }
 
-    const { data: updatedProduct, error: updateError } = 
+    const { data: updatedProduct, error: updateError } =
         await supabase
             .from("products")
             .update(soldProduct)
@@ -174,7 +185,7 @@ export async function markProductAsSold(productId, userId) {
 }
 
 export async function markProductAsUnsold(productId, userId) {
-    const unsoldProduct = { 
+    const unsoldProduct = {
         status: "AVAILABLE"
     }
 
@@ -185,8 +196,8 @@ export async function markProductAsUnsold(productId, userId) {
         .eq("owner_id", userId)
         .select()
         .single()
-    
+
     if (error) throw error
 
-    return data  
+    return data
 }
