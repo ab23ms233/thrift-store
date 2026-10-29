@@ -56,26 +56,26 @@ function ReplaceIcon() {
     )
 }
 
-function ReplaceImageButton({ file, index, openFilePicker }) {
+function ReplaceImageButton({ index, openFilePicker }) {
     return (
         <button
             type="button"
             className="image-action-button replace-image-button"
             onClick={() => openFilePicker(index)}
-            aria-label={`Replace ${file.name}`}
+            aria-label="Replace image"
         >
             <ReplaceIcon />
         </button>
     )
 }
 
-function RemoveImageButton({ file, index, removeImage }) {
+function RemoveImageButton({ index, removeImage }) {
     return (
         <button
             type="button"
             className="image-action-button remove-image-button"
             onClick={() => removeImage(index)}
-            aria-label={`Remove ${file.name}`}
+            aria-label="Remove image"
         >
             <RemoveIcon />
         </button>
@@ -322,9 +322,13 @@ function ProductForm({
                         {
                             Array.from({ length: MAX_FILES }, (_, index) => {
                                 const file = imageFiles[index]
-                                const imageUrl = file
+                                const imageUrl = !initialProduct
                                     ? URL.createObjectURL(file)
-                                    : initialProduct?.image_urls?.[index]
+                                    : initialProduct.image_urls
+                                        ? initialProduct.image_urls?.[index]
+                                        : initialProduct.image_url
+                                            ? [initialProduct.image_url][index]
+                                            : []
 
                                 return (
                                     <div className={`image-preview${index === 0 ? " cover-image" : ""}`} key={index}>
@@ -332,11 +336,9 @@ function ProductForm({
                                             <>
                                                 <img src={imageUrl} alt={file?.name ?? `Product image ${index+1}`} />
                                                 <RemoveImageButton
-                                                    file={file}
                                                     index={index}
                                                     removeImage={removeImage} />
                                                 <ReplaceImageButton
-                                                    file={file}
                                                     index={index}
                                                     openFilePicker={openFilePicker} />
                                             </>

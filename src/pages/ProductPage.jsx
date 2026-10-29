@@ -68,6 +68,19 @@ function ProductPage({
         }
     }, [product.owner_id])
 
+    const images = product.image_urls?.length
+        ? product.image_urls
+        : product.image_url
+            ? [product.image_url]
+            : []
+    
+    const [activeImageIndex, setActiveImageIndex] = useState(0)
+    const activeImage = images[activeImageIndex] ?? images[0]
+
+    useEffect(() => {
+        setActiveImageIndex(0)
+    }, [product.id])
+
     const isOwner = user?.id === product.owner_id
     const isAvailable = product.status === "AVAILABLE"
     const statusLabel = isAvailable
@@ -136,8 +149,36 @@ function ProductPage({
                 description={""} />
 
             <article className="product-page__card">
-                <div className="product-page__image">
-                    <img src={product.image_url} alt={product.title} />
+                <div className="product-page__image-viewer">
+                    {
+                        activeImage ? (
+                            <img 
+                            className="product-page__main-image"
+                            src={activeImage} 
+                            alt={`${product.title} - image ${activeImageIndex+1} of ${images.length}`} />
+                        ) : (
+                            <p>No product images available</p>
+                        )
+                    }
+
+                    {
+                        images.length > 1 && (
+                            <div className="product-page__thumbnails">
+                                {
+                                    images.map((image, index) => {
+                                        <button
+                                            key={`${image} - ${index}`}
+                                            type="button"
+                                            className={`product-page__thumbnail${index === activeImageIndex ? " is-pressed" : ""}`}
+                                            aria-pressed={index === activeImageIndex}
+                                            aria-label={`Show product image ${index+1}`}>
+                                            
+                                        </button>
+                                    })
+                                }
+                            </div>
+                        )
+                    }
                 </div>
 
                 <div className="product-page__details">
