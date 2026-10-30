@@ -28,6 +28,86 @@ export function ProductRoute({
         : <p>Product not found.</p>
 }
 
+function RightArrowIcon() {
+    return (
+        <svg
+            viewBox="0 0 24 24"
+            width="20"
+            height="20"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+        >
+            <path
+                d="M5 12h14m-6-6 6 6-6 6"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+        </svg>
+    )
+}
+
+function LeftArrowIcon() {
+    return (
+        <svg
+            viewBox="0 0 24 24"
+            width="20"
+            height="20"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+        >
+            <path
+                d="M19 12H5m6 6-6-6 6-6"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+        </svg>
+    )
+}
+
+function EmailIcon() {
+    return (
+        <svg
+            className="product-page__contact-icon"
+            id="product-page__email-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            role="img"
+            aria-label="Email"
+        >
+            <rect x="3" y="5" width="18" height="14" rx="2" />
+            <path d="m3 7 9 6 9-6" />
+        </svg>
+    )
+}
+
+function PhoneIcon() {
+    return (
+        <svg
+            className="product-page__contact-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            role="img"
+            aria-label="Phone"
+        >
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.12 4.2 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.96.35 1.9.69 2.8a2 2 0 0 1-.45 2.11L8.08 9.92a16 16 0 0 0 6 6l1.29-1.27a2 2 0 0 1 2.11-.45c.9.34 1.84.57 2.8.69A2 2 0 0 1 22 16.92z" />
+        </svg>
+    )
+}
+
 function ProductPage({
     product,
     onProductsChanged
@@ -66,20 +146,22 @@ function ProductPage({
         return () => {
             isCurrent = false
         }
-    }, [product.owner_id])
+        }, [product.owner_id]
+    )
 
     const images = product.image_urls?.length
         ? product.image_urls
         : product.image_url
             ? [product.image_url]
             : []
-    
+
     const [activeImageIndex, setActiveImageIndex] = useState(0)
     const activeImage = images[activeImageIndex] ?? images[0]
 
     useEffect(() => {
         setActiveImageIndex(0)
-    }, [product.id])
+        }, [product.id]
+    )
 
     const isOwner = user?.id === product.owner_id
     const isAvailable = product.status === "AVAILABLE"
@@ -121,7 +203,7 @@ function ProductPage({
     async function handleSold() {
         setShowMessage(false)
 
-        const caller = 
+        const caller =
             product.status === "AVAILABLE"
                 ? markProductAsSold
                 : markProductAsUnsold
@@ -152,12 +234,50 @@ function ProductPage({
                 <div className="product-page__image-viewer">
                     {
                         activeImage ? (
-                            <img 
-                            className="product-page__main-image"
-                            src={activeImage} 
-                            alt={`${product.title} - image ${activeImageIndex+1} of ${images.length}`} />
+                            <div className="product-page__main-image-cont">
+                                <img
+                                    className="product-page__main-image"
+                                    src={activeImage}
+                                    alt={`${product.title} - image ${activeImageIndex + 1} of ${images.length}`} />
+
+                                <button
+                                    className="product-page__change-image next-image"
+                                    type="button"
+                                    aria-label="Show next product image"
+                                    onClick={() => {
+                                        let index = 0
+
+                                        if (activeImageIndex < images.length) {
+                                            index = activeImageIndex + 1
+                                        } else {
+                                            index = 0
+                                        }
+
+                                        setActiveImageIndex(index)
+                                    }}>
+                                    <RightArrowIcon />
+                                </button>
+
+                                <button
+                                    className="product-page__change-image previous-image"
+                                    type="button"
+                                    aria-label="Show previous product image"
+                                    onClick={() => {
+                                        let index = 0
+
+                                        if (activeImageIndex >= 0) {
+                                            index = activeImageIndex - 1
+                                        } else {
+                                            index = 0
+                                        }
+
+                                        setActiveImageIndex(index)
+                                    }}>
+                                    <LeftArrowIcon />
+                                </button>
+                            </div>
                         ) : (
-                            <p>No product images available</p>
+                            <p>No product images available.</p>
                         )
                     }
 
@@ -165,16 +285,17 @@ function ProductPage({
                         images.length > 1 && (
                             <div className="product-page__thumbnails">
                                 {
-                                    images.map((image, index) => {
+                                    images.map((image, index) => (
                                         <button
                                             key={`${image} - ${index}`}
                                             type="button"
+                                            onClick={() => setActiveImageIndex(index)}
                                             className={`product-page__thumbnail${index === activeImageIndex ? " is-pressed" : ""}`}
                                             aria-pressed={index === activeImageIndex}
-                                            aria-label={`Show product image ${index+1}`}>
-                                            
+                                            aria-label={`Show product image ${index + 1}`}>
+
                                         </button>
-                                    })
+                                    ))
                                 }
                             </div>
                         )
@@ -215,21 +336,7 @@ function ProductPage({
                             <h3 className="product-page__field-label">Contact owner</h3>
                             <div className="product-page__contacts-cont">
                                 <div className="product-page__contact-cont">
-                                    <svg
-                                        className="product-page__contact-icon"
-                                        id="product-page__email-icon"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        strokeWidth="1.8"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        role="img"
-                                        aria-label="Email"
-                                    >
-                                        <rect x="3" y="5" width="18" height="14" rx="2" />
-                                        <path d="m3 7 9 6 9-6" />
-                                    </svg>
+                                    <EmailIcon />
                                     {ownerEmail
                                         ? <a href={`mailto:${ownerEmail}`}>{ownerEmail}</a>
                                         : <p className="product-page__email-unavailable">Email unavailable</p>}
@@ -237,19 +344,7 @@ function ProductPage({
                                 </div>
 
                                 <div className="product-page__contact-cont">
-                                    <svg
-                                        className="product-page__contact-icon"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        strokeWidth="1.8"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        role="img"
-                                        aria-label="Phone"
-                                    >
-                                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.12 4.2 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.96.35 1.9.69 2.8a2 2 0 0 1-.45 2.11L8.08 9.92a16 16 0 0 0 6 6l1.29-1.27a2 2 0 0 1 2.11-.45c.9.34 1.84.57 2.8.69A2 2 0 0 1 22 16.92z" />
-                                    </svg>
+                                    <PhoneIcon />
                                     {ownerPhone
                                         ? <p className="product-page__phone-number">
                                             {ownerPhone}</p>
@@ -263,7 +358,7 @@ function ProductPage({
                     </section>
                 </div>
             </article>
-            
+
             {
                 showMessage && (
                     <FormSuccess
@@ -289,7 +384,7 @@ function ProductPage({
                             id="edit-button"
                             onClick={() => {
                                 setShowMessage(false)
-                                navigate(`/products/${product.id}/edit`, { state: { from: location.pathname }})
+                                navigate(`/products/${product.id}/edit`, { state: { from: location.pathname } })
                             }}
                         >
                             Edit
@@ -307,9 +402,9 @@ function ProductPage({
                         </button>
 
                         <CTAButton
-                            text={ product.status === "AVAILABLE"
-                                    ? "Mark as sold"
-                                    : "Mark as unsold"
+                            text={product.status === "AVAILABLE"
+                                ? "Mark as sold"
+                                : "Mark as unsold"
                             }
                             type={"button"}
                             isDisabled={isMarkingAsSold}
