@@ -334,3 +334,33 @@
 .previous-image {
     left: 15px;
 }
+
+.product-page__image-loading {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    display: grid;
+    place-items: center;
+    pointer-events: none;
+}
+
+.product-page__spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid var(--color-border);
+    border-top-color: var(--color-primary);
+    border-radius: 50%;
+    animation: product-image-spin 0.8s linear infinite;
+}
+
+@keyframes product-image-spin {
+    to {
+        transform: rotate(360deg);
+    } 
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .product-page__image-spinner {
+        animation-duration: 1.8s;
+    }
+}

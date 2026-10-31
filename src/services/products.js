@@ -76,66 +76,134 @@ export async function addProduct(product, userId) {
 }
 
 export async function editProduct(productId, fields, userId) {
+    if (!Array.isArray(fields.images)) {
+        throw new Error("Product images must be present as an array.")
+    }
     const { data: existingProduct, error: fetchError } =
         await supabase
             .from("products")
-            .select("image_url, image_path")
+            .select("image_url, image_path, image_urls, image_paths")
             .eq("id", productId)
+            .eq("owner_id", userId)
             .single()
 
-    if (fetchError) {
-        throw fetchError
-    }
+    if (fetchError) throw fetchError
 
-    const updates = {
-        title: fields.title,
-        description: fields.description,
-        price: Number(fields.price),
-        category_id: fields.categoryId
-    }
+    const existingImageUrls = existingProduct.image_urls?.length
+        ? existingProduct.image_urls
+        : existingProduct.image_url
+            ? [existingProduct.image_url]
+            : []
 
-    if (fields.image) {
-        const fileExt = fields.image.name.split(".").pop()
-        const newImagePath = `${userId}/${crypto.randomUUID()}.${fileExt}`
+    const existingImagePaths = existingProduct.image_paths?.length
+        ? existingProduct.image_paths
+        : existingProduct.image_path
+            ? [existingProduct.image_path]
+            : []
 
-        const { error: uploadError } =
-            await supabase.storage
-                .from("product-images")
-                .upload(newImagePath, fields.image)
+    const existingPaths = [...new Set([
+        ...existingImagePaths,
+        existingProduct.image_path
+    ].filter(Boolean))]
 
-        if (uploadError) {
-            throw uploadError
+    const uploadedPaths = []
+    const imageUrls = []
+    const imagePaths = []
+
+    try {
+        for (const image of fields.images) {
+            let imageUrl
+            let imagePath
+
+            if (typeof image === "string") {
+                imageUrl = image
+
+                const existingIndex = existingImageUrls.indexOf(image)
+                if (existingIndex === -1) {
+                    throw new Error("An edited image does not match an existing product image.")
+                }
+
+                imagePath = existingImagePaths[existingIndex]
+
+                if (!imagePath && image === existingProduct.image_url) {
+                    imagePath = existingProduct.image_path
+                }
+
+                if (!imagePath) {
+                    throw new Error(`Could not find the storage path for existing image: ${image}.`)
+                }
+            } else {
+                if (!image || typeof image.name !== "string") {
+                    throw new Error("each new product image must be a file.")
+                }
+
+                const fileExt = image.name.split(".").pop()
+                imagePath = `${userId}/${crypto.randomUUID()}.${fileExt}`
+
+                const { error: uploadError } = await supabase.storage
+                    .from("product-images")
+                    .upload(imagePath, image)
+
+                if (uploadError) throw uploadError
+
+                uploadedPaths.push(imagePath)
+                imageUrl = supabase.storage
+                    .from("product-images")
+                    .getPublicUrl(imagePath).data.publicUrl
+            }
+
+            if (imageUrls.includes(imageUrl)) continue
+
+            imageUrls.push(imageUrl)
+            imagePaths.push(imagePath)
         }
 
-        updates.image_path = newImagePath
-        updates.image_url = supabase.storage
-            .from("product-images")
-            .getPublicUrl(newImagePath).data.publicUrl
-    }
-
-    const { data: updatedProduct, error: updateError } =
-        await supabase
+        const { data: updatedProduct, error: updateError } = await supabase
             .from("products")
-            .update(updates)
+            .update({
+                title: fields.title,
+                description: fields.description,
+                price: Number(fields.price),
+                category_id: fields.categoryId,
+                image_url: imageUrls[0] ?? null,
+                image_path: imagePaths[0] ?? null,
+                image_urls: imageUrls,
+                image_paths: imagePaths
+            })
             .eq("id", productId)
             .eq("owner_id", userId)
             .select()
             .single()
 
-    if (updateError) throw updateError
+        if (updateError) throw updateError
 
-    if (fields.image && existingProduct.image_path) {
-        const { error: removeError } =
-            await supabase.storage
+        const finalPaths = new Set(imagePaths)
+        const pathsToRemove = existingPaths.filter(path => !finalPaths.has(path))
+
+        if (pathsToRemove.length) {
+            const { error: removeError } = await supabase.storage
                 .from("product-images")
-                .remove([existingProduct.image_path])
+                .remove(pathsToRemove)
 
-        if (removeError) {
-            console.error("Could not remove old image for product:", updatedProduct.id, removeError)
+            if (removeError) {
+                console.error("Could not remove old images for product:", updatedProduct.id, removeError)
+            }
+        }
+
+        return updatedProduct
+    } catch (error) {
+        if (uploadedPaths.length) {
+            const { error: cleanupError } = await supabase.storage
+                .from("product-images")
+                .remove(uploadedPaths)
+
+            if (cleanupError) {
+                console.error("Could not clean up newly uploaded product images on failure of update row:", cleanupError) 
+            }
+
+            throw error
         }
     }
-
-    return updatedProduct
 }
 
 export async function deleteProduct(productId, userId) {
@@ -148,6 +216,11 @@ export async function deleteProduct(productId, userId) {
 
     if (fetchError) throw fetchError
 
+    const imagePaths = [...new Set([
+        ...(product.image_paths ?? []),
+        product.image_path
+    ].filter(Boolean))]
+
     const { error: deleteError } = await supabase
         .from("products")
         .delete()
@@ -156,10 +229,10 @@ export async function deleteProduct(productId, userId) {
 
     if (deleteError) throw deleteError
 
-    if (product.image_path) {
+    if (imagePaths.length) {
         const { error: storageError } = await supabase.storage
             .from("product-images")
-            .remove([product.image_path])
+            .remove(imagePaths)
 
         if (storageError) throw storageError
     }

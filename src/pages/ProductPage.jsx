@@ -108,6 +108,17 @@ function PhoneIcon() {
     )
 }
 
+function ImageSpinner() {
+    return (
+        <div
+            className="product-page__image-loading"
+            role="status"
+            aria-label="Loading product image">
+            <span className="product-page__spinner" aria-hidden="true" />
+        </div>
+    )
+}
+
 function ProductPage({
     product,
     onProductsChanged
@@ -146,7 +157,7 @@ function ProductPage({
         return () => {
             isCurrent = false
         }
-        }, [product.owner_id]
+    }, [product.owner_id]
     )
 
     const images = product.image_urls?.length
@@ -157,10 +168,12 @@ function ProductPage({
 
     const [activeImageIndex, setActiveImageIndex] = useState(0)
     const activeImage = images[activeImageIndex] ?? images[0]
+    const [resolvedImage, setResolvedImage] = useState(null)
+    const isImageLoading = (Boolean(activeImage) && resolvedImage !== activeImage)
 
     useEffect(() => {
         setActiveImageIndex(0)
-        }, [product.id]
+    }, [product.id]
     )
 
     const isOwner = user?.id === product.owner_id
@@ -235,10 +248,16 @@ function ProductPage({
                     {
                         activeImage ? (
                             <div className="product-page__main-image-cont">
+                                {
+                                    isImageLoading && <ImageSpinner />
+                                }
+
                                 <img
                                     className="product-page__main-image"
                                     src={activeImage}
-                                    alt={`${product.title} - image ${activeImageIndex + 1} of ${images.length}`} />
+                                    alt={`${product.title} - image ${activeImageIndex + 1} of ${images.length}`}
+                                    onLoad={() => setResolvedImage(activeImage)}
+                                    onError={() => setResolvedImage(activeImage)} />
 
                                 <button
                                     className="product-page__change-image next-image"

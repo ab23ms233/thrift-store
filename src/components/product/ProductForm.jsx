@@ -195,7 +195,10 @@ function ProductForm({
         for (let i = 0; i < files.length; i++) {
             const file = files[i]
 
-            if (file && !file.type.startsWith("image/")) {
+            if (typeof file === "string") {
+                continue
+            }
+            else if (file && !file.type.startsWith("image/")) {
                 error = "Please choose an image file."
                 break
             } else if (file && file.size > MAX_FILE_SIZE * 1024 * 1024) {
@@ -417,7 +420,7 @@ function ProductForm({
 
             <CTAButton
                 type="submit"
-                disabled={isSubmitting || formSuccess}
+                isDisabled={isSubmitting || formSuccess}
                 text={submitLabel}
                 disabledText="Saving..."
                 isSuccess={formSuccess}
