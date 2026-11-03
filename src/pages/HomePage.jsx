@@ -5,26 +5,29 @@ import SellButton from "../components/button/SellButton.jsx"
 
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { Spinner } from "../components/common/Spinner.jsx"
 
-function HomePage({ products }) {
+function HomePage({ products, isProductsLoading }) {
     const navigate = useNavigate()
     const [searchQuery, setSearchQuery] = useState("")
     const [selectedCategory, setSelectedCategory] = useState("All")
 
-	const visibleProducts = products.filter(product => {
-		const matchesCategory =
-			selectedCategory === "All" ||
-			product.category?.name === selectedCategory
-		
-		const query = searchQuery.trim().toLowerCase()
-		const matchesSearch =
-			!query ||
-			product.title.toLowerCase().includes(query) ||
-			product.description.toLowerCase().includes(query)
-		
-		return matchesCategory && matchesSearch
-	})
+    const visibleProducts = products.filter(product => {
+        const matchesCategory =
+            selectedCategory === "All" ||
+            product.category?.name === selectedCategory
 
+        const query = searchQuery.trim().toLowerCase()
+        const matchesSearch =
+            !query ||
+            product.title.toLowerCase().includes(query) ||
+            product.description.toLowerCase().includes(query)
+
+        return matchesCategory && matchesSearch
+    })
+
+    if (isProductsLoading) return <Spinner />
+    
     return (
         <section className="section" id="home-page">
             <SearchBar
@@ -41,13 +44,13 @@ function HomePage({ products }) {
             <ProductGrid
                 products={visibleProducts}
                 onProductSelect={
-                    product => 
+                    product =>
                         navigate(
                             `/products/${product.id}`, {
-                                state: { from: "/"}
-                            }
+                            state: { from: "/" }
+                        }
                         )
-                    }
+                }
             />
 
             <SellButton />

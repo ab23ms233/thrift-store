@@ -11,10 +11,12 @@ import BackButton from "../components/button/BackButton.jsx"
 import { getProfile } from "../services/profile.js"
 import CTAButton from "../components/button/CTAButton.jsx"
 import { FormError, FormSuccess } from "../components/common/FormStatus.jsx"
+import { Spinner } from "../components/common/Spinner.jsx"
 
 export function ProductRoute({
     products,
-    onProductsChanged
+    onProductsChanged,
+    isProductsLoading
 }) {
     const { productId } = useParams()
     const product = products.find(
@@ -24,7 +26,8 @@ export function ProductRoute({
     return product
         ? <ProductPage
             product={product}
-            onProductsChanged={onProductsChanged} />
+            onProductsChanged={onProductsChanged}
+            isProductsLoading={isProductsLoading} />
         : <p>Product not found.</p>
 }
 
@@ -67,6 +70,68 @@ function LeftArrowIcon() {
                 strokeLinejoin="round"
             />
         </svg>
+    )
+}
+
+function ImageArrowButtons({ images, activeImageIndex, setActiveImageIndex }) {
+    return (
+        <>
+            <button
+                className="product-page__change-image next-image"
+                type="button"
+                aria-label="Show next product image"
+                onClick={() => {
+                    let index = 0
+
+                    if (activeImageIndex < images.length) {
+                        index = activeImageIndex + 1
+                    } else {
+                        index = 0
+                    }
+
+                    setActiveImageIndex(index)
+                }}>
+                <RightArrowIcon />
+            </button>
+
+            <button
+                className="product-page__change-image previous-image"
+                type="button"
+                aria-label="Show previous product image"
+                onClick={() => {
+                    let index = 0
+
+                    if (activeImageIndex >= 0) {
+                        index = activeImageIndex - 1
+                    } else {
+                        index = 0
+                    }
+
+                    setActiveImageIndex(index)
+                }}>
+                <LeftArrowIcon />
+            </button>
+        </>
+    )
+}
+
+function ImageThumbnails({ images, activeImageIndex, setActiveImageIndex }) {
+    return (
+        <div className="product-page__thumbnails">
+            {
+                images.map((image, index) => (
+                    <button
+                        key={`${image} - ${index}`}
+                        type="button"
+                        onClick={() => setActiveImageIndex(index)}
+                        className={`product-page__thumbnail${index === activeImageIndex ? " is-pressed" : ""}`}
+                        aria-pressed={index === activeImageIndex}
+                        aria-label={`Show product image ${index + 1}`}>
+
+                    </button>
+                ))
+            }
+        </div>
     )
 }
 
@@ -119,9 +184,26 @@ function ImageSpinner() {
     )
 }
 
+function SuccessMessage({ isProductSold }) {
+    return (
+        <FormSuccess
+            message={
+                isProductSold()
+                    ? "Product sold!"
+                    : "Your product is back!"
+            }
+            description={
+                isProductSold()
+                    ? "Your product has been marked as sold."
+                    : "Your product is live on campus."
+            } />
+    )
+}
+
 function ProductPage({
     product,
-    onProductsChanged
+    onProductsChanged,
+    isProductsLoading
 }) {
     const navigate = useNavigate()
     const { user } = useAuth()
@@ -133,15 +215,18 @@ function ProductPage({
 
     const [userProfile, setUserProfile] = useState(null)
     const [profileError, setProfileError] = useState(null)
+    const [isProfileLoading, setIsProfileLoading] = useState(true)
 
     const [errorMessage, setErrorMessage] = useState("")
     const [showMessage, setShowMessage] = useState(false)
 
+    const loading = isProfileLoading || isProductsLoading
     const location = useLocation()
     const from = location.state?.from || "/"
 
     useEffect(() => {
         let isCurrent = true
+        setIsProfileLoading(true)
 
         async function fetchProfile() {
             try {
@@ -149,6 +234,8 @@ function ProductPage({
                 if (isCurrent) setUserProfile(profile)
             } catch (error) {
                 if (isCurrent) setProfileError(error)
+            } finally {
+                setIsProfileLoading(false)
             }
         }
 
@@ -237,6 +324,8 @@ function ProductPage({
         }
     }
 
+    if (loading) return <Spinner />
+    
     return (
         <section className="section" id="product-page">
             <PageHeader
@@ -258,42 +347,13 @@ function ProductPage({
                                     alt={`${product.title} - image ${activeImageIndex + 1} of ${images.length}`}
                                     onLoad={() => setResolvedImage(activeImage)}
                                     onError={() => setResolvedImage(activeImage)} />
-
-                                <button
-                                    className="product-page__change-image next-image"
-                                    type="button"
-                                    aria-label="Show next product image"
-                                    onClick={() => {
-                                        let index = 0
-
-                                        if (activeImageIndex < images.length) {
-                                            index = activeImageIndex + 1
-                                        } else {
-                                            index = 0
-                                        }
-
-                                        setActiveImageIndex(index)
-                                    }}>
-                                    <RightArrowIcon />
-                                </button>
-
-                                <button
-                                    className="product-page__change-image previous-image"
-                                    type="button"
-                                    aria-label="Show previous product image"
-                                    onClick={() => {
-                                        let index = 0
-
-                                        if (activeImageIndex >= 0) {
-                                            index = activeImageIndex - 1
-                                        } else {
-                                            index = 0
-                                        }
-
-                                        setActiveImageIndex(index)
-                                    }}>
-                                    <LeftArrowIcon />
-                                </button>
+                                {
+                                    images.length > 1 &&
+                                    <ImageArrowButtons
+                                        images={images}
+                                        activeImageIndex={activeImageIndex}
+                                        setActiveImageIndex={setActiveImageIndex} />
+                                }
                             </div>
                         ) : (
                             <p>No product images available.</p>
@@ -301,23 +361,11 @@ function ProductPage({
                     }
 
                     {
-                        images.length > 1 && (
-                            <div className="product-page__thumbnails">
-                                {
-                                    images.map((image, index) => (
-                                        <button
-                                            key={`${image} - ${index}`}
-                                            type="button"
-                                            onClick={() => setActiveImageIndex(index)}
-                                            className={`product-page__thumbnail${index === activeImageIndex ? " is-pressed" : ""}`}
-                                            aria-pressed={index === activeImageIndex}
-                                            aria-label={`Show product image ${index + 1}`}>
-
-                                        </button>
-                                    ))
-                                }
-                            </div>
-                        )
+                        images.length > 1 &&
+                        <ImageThumbnails
+                            images={images}
+                            activeImageIndex={activeImageIndex}
+                            setActiveImageIndex={setActiveImageIndex} />
                     }
                 </div>
 
@@ -379,19 +427,7 @@ function ProductPage({
             </article>
 
             {
-                showMessage && (
-                    <FormSuccess
-                        message={
-                            isProductSold()
-                                ? "Product sold!"
-                                : "Your product is back!"
-                        }
-                        description={
-                            isProductSold()
-                                ? "Your product has been marked as sold."
-                                : "Your product is live on campus."
-                        } />
-                )
+                showMessage && <SuccessMessage isProductSold={isProductSold} />
             }
 
             <div className="product-page__actions">
@@ -463,6 +499,7 @@ function ProductPage({
                     isSubmitting={isDeleting}
                 />
             )}
+
         </section>
     )
 }

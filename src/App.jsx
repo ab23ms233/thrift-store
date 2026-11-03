@@ -36,10 +36,15 @@ function AppShell() {
 	const shouldShowBottomNav = !authPages.includes(location.pathname)
 
 	const [products, setProducts] = useState([])
+	const [isProductsLoading, setIsProductLoading] = useState(true)
 
 	async function fetchProducts() {
-		const data = await getProducts()
-		setProducts(data)
+		try {
+			const data = await getProducts()
+			setProducts(data)
+		} finally {
+			setIsProductLoading(false)
+		}
 	}
 
 	useEffect(() => {
@@ -63,7 +68,8 @@ function AppShell() {
 						path="/my-listings"
 						element={
 							<MyListings
-								products={products} />
+								products={products}
+								isProductsLoading={isProductsLoading} />
 						} />
 
 					<Route
@@ -71,7 +77,8 @@ function AppShell() {
 						element={
 							<EditProductRoute
 								products={products}
-								onEditProduct={fetchProducts} />
+								onEditProduct={fetchProducts}
+								isProductsLoading={isProductsLoading} />
 						} />
 
 					<Route
@@ -96,7 +103,8 @@ function AppShell() {
 					path="/"
 					element={
 						<HomePage
-							products={products} />
+							products={products}
+							isProductsLoading={isProductsLoading} />
 					} />
 
 				<Route
@@ -104,7 +112,8 @@ function AppShell() {
 					element={
 						<ProductRoute
 							products={products}
-							onProductsChanged={fetchProducts} />
+							onProductsChanged={fetchProducts}
+							isProductsLoading={isProductsLoading} />
 					} />
 
 				<Route

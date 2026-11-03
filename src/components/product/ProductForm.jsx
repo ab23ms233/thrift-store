@@ -10,6 +10,7 @@ import "../common/FormStatus.css"
 import BackButton from "../button/BackButton.jsx";
 import { useLocation } from "react-router-dom";
 import { MAX_FILE_SIZE, MAX_FILES } from "../../constants.js";
+import { Spinner } from "../common/Spinner.jsx";
 
 function ImageFrameIcon() {
     return (
@@ -110,7 +111,29 @@ function ProductForm({
     const [formSuccess, setFormSuccess] = useState(false)
 
     const [categories, setCategories] = useState([])
+    const [isCategoriesLoading, setIsCategoriesLoading] = useState(true)
     const [isSubmitting, setIsSubmitting] = useState(false)
+
+    const originalImages = initialProduct?.image_urls?.length
+        ? initialProduct.image_urls
+        : initialProduct?.image_url
+            ? [initialProduct.image_url]
+            : []
+
+    const imagesAreUnchanged =
+        imageFiles.length === originalImages.length &&
+        imageFiles.every(
+            (image, index) =>
+                typeof image === "string" && image === originalImages[index]
+        )
+
+    const hasChanges = initialProduct && (
+        title !== (initialProduct.title ?? "") ||
+        description !== (initialProduct.description ?? "") ||
+        String(price) !== String(initialProduct.price ?? "") ||
+        String(categoryId) !== String(initialProduct.category_id ?? "") ||
+        !imagesAreUnchanged
+    )
 
     const inputRef = useRef(null)
     const replaceIndexRef = useRef(null)
@@ -120,8 +143,14 @@ function ProductForm({
 
     useEffect(() => {
         async function fetchCategories() {
-            const data = await getCategories()
-            setCategories(data)
+            setIsCategoriesLoading(true)
+
+            try {
+                const data = await getCategories()
+                setCategories(data)
+            } finally {
+                setIsCategoriesLoading(false)
+            }
         }
 
         fetchCategories()
@@ -225,6 +254,8 @@ function ProductForm({
             return
         }
 
+        if (initialProduct && !hasChanges) return
+
         setFormError(false)
         setFormSuccess(false)
         setIsSubmitting(true)
@@ -245,6 +276,8 @@ function ProductForm({
             setIsSubmitting(false)
         }
     }
+
+    if (isCategoriesLoading) return <Spinner />
 
     return (
         <form className="form" id="product-form" onSubmit={handleSubmitForm} noValidate>
@@ -420,9 +453,13 @@ function ProductForm({
 
             <CTAButton
                 type="submit"
-                isDisabled={isSubmitting || formSuccess}
+                isDisabled={Boolean(initialProduct) && !hasChanges || isSubmitting || formSuccess}
                 text={submitLabel}
-                disabledText="Saving..."
+                disabledText={
+                    !hasChanges
+                        ? submitLabel
+                        : "Saving..."
+                }
                 isSuccess={formSuccess}
                 successText={"Saved"} />
 

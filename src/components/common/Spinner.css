@@ -1,0 +1,53 @@
+.spinner-cont {
+    display: grid;
+    place-items: center;
+}
+
+.spinner {
+    position: relative;
+    min-height: 70vh;
+    width: 100px;
+    display: inline-block;
+    animation: spinner-rotate 1.2s linear infinite;
+}
+
+.spinner-label {
+    position: absolute;
+    top: 55%;
+    left: 18%;
+}
+
+.spinner-line {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 3px;
+    height: 10px;
+    border-radius: 3px;
+    background-color: var(--color-primary);
+
+    transform: 
+        translate(-50%, -50%)
+        rotate(calc(var(--i)*30deg))
+        translateY(calc(var(--spinner-size) * -0.3));
+    
+    animation: spinner-fade 1.2s linear infinite;
+    opacity: 0.25;
+    animation-delay: calc(var(--i) * -0.1s);
+}
+
+@keyframes spinner-fade {
+    0%, 100% {
+        opacity: 0.25;
+    }
+    
+    50% {
+        opacity: 1;
+    }
+}
+
+/* @keyframes spinner-rotate {
+    to {
+        transform: rotate(360deg);
+    }
+} */

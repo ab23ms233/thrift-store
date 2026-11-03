@@ -6,9 +6,13 @@ import { useAuth } from "../context/AuthContext.jsx";
 import PageHeader from "../components/common/PageHeader.jsx";
 import { formTimeout } from "../constants.js";
 import { useEffect, useState } from "react";
+import { Spinner } from "../components/common/Spinner.jsx";
 
-export function EditProductRoute({ products, onEditProduct }) {
+export function EditProductRoute({ products, onEditProduct, isProductsLoading }) {
     const { productId } = useParams()
+    
+    if (isProductsLoading) return <Spinner />
+
     const product = products.find(product => String(product.id) === productId)
 
     return product

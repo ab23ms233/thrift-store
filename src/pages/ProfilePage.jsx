@@ -13,6 +13,7 @@ import { deleteAccount, editProfile, getProfile } from "../services/profile.js"
 
 import "./ProfilePage.css"
 import { supabase } from "../lib/supabase.js"
+import { Spinner } from "../components/common/Spinner.jsx"
 
 function normalizeProfileValues(values) {
     return {
@@ -206,6 +207,8 @@ function ProfilePage() {
         currentValues.email !== normalizedInitialValues.email ||
         currentValues.phone !== normalizedInitialValues.phone
 
+    if (isLoading) return <Spinner />
+    
     return (
         <section className="section profile-page">
             <PageHeader
