@@ -13,6 +13,7 @@ import { supabase } from "../lib/supabase.js"
 
 import { formTimeout } from "../constants.js"
 import ShowPasswordButton from "../components/button/ShowPasswordButton.jsx"
+import { Spinner } from "../components/common/Spinner.jsx"
 
 function ChangePasswordPage() {
     const navigate = useNavigate()
@@ -24,8 +25,11 @@ function ChangePasswordPage() {
     const [newPasswordError, setNewPasswordError] = useState("")
     const [confirmPasswordError, setConfirmPasswordError] = useState("")
     const [errorMessage, setErrorMessage] = useState("")
+
     const [isUpdating, setIsUpdating] = useState(false)
     const [isUpdated, setIsUpdated] = useState(false)
+    const [isLoading, setIsLoading] = useState(true)
+    const isChecking = authStatus === "checking"
 
     const [showPassword, setShowPassword] = useState(false)
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -35,6 +39,8 @@ function ChangePasswordPage() {
         let isCurrent = true
 
         async function checkAuthentication() {
+            setIsLoading(true)
+
             try {
                 const { data, error } = await supabase.auth.getUser()
                 if (!isCurrent) return
@@ -62,6 +68,8 @@ function ChangePasswordPage() {
                 if (!isCurrent) return
                 setErrorMessage(error.message)
                 setAuthStatus("error")
+            } finally {
+                setIsLoading(false)
             }
         }
 
@@ -91,7 +99,9 @@ function ChangePasswordPage() {
     function validateNewPassword(value = newPassword) {
         const error = value === currentPassword
             ? "New password must be different from your current password."
-            : ""
+            : value === ""
+                ? "Password should not be empty"
+                : ""
         setNewPasswordError(error)
         return error
     }
@@ -99,7 +109,9 @@ function ChangePasswordPage() {
     function validateConfirmPassword(value = confirmPassword) {
         const error = value !== newPassword
             ? "New passwords do not match."
-            : ""
+            : value === ""
+                ? "Password should not be empty"
+                : ""
         setConfirmPasswordError(error)
         return error
     }
@@ -147,6 +159,8 @@ function ChangePasswordPage() {
     }
 
     const isFormDisabled = authStatus !== "authenticated" || isUpdating || isUpdated
+
+    if (isLoading || isChecking) return <Spinner />
 
     return (
         <section className="section change-password-page">
@@ -288,7 +302,7 @@ function ChangePasswordPage() {
                     disabledText={
                         isUpdating
                             ? "Changing password..."
-                            : authStatus === "checking"
+                            : isChecking
                                 ? "Checking account..."
                                 : "Unavailable"
                     }

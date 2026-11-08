@@ -200,6 +200,30 @@ function SuccessMessage({ isProductSold }) {
     )
 }
 
+function Email(product, userProfile) {
+    const emailSubject = `Interest in your listing: ${product.title}`
+
+    const emailBody = `Hi ${userProfile?.full_name ?? "there"},
+    
+    I am interested in your listing "${product.title}".
+    
+    Price: ₹${product.price}
+    Status: ${product.status}
+    
+    Is this item still available?
+    
+    Listing: ${window.location.origin}/products/${product.id}
+    
+    Thanks!`
+
+    const emailParams = new URLSearchParams({
+        subject: emailSubject,
+        body: emailBody
+    })
+
+    return emailParams.toString()
+}
+
 function ProductPage({
     product,
     onProductsChanged,
@@ -325,7 +349,7 @@ function ProductPage({
     }
 
     if (loading) return <Spinner />
-    
+
     return (
         <section className="section" id="product-page">
             <PageHeader
@@ -405,7 +429,9 @@ function ProductPage({
                                 <div className="product-page__contact-cont">
                                     <EmailIcon />
                                     {ownerEmail
-                                        ? <a href={`mailto:${ownerEmail}`}>{ownerEmail}</a>
+                                        ? <a href={`mailto:${ownerEmail}?${Email(product, userProfile)}`}>
+                                            {ownerEmail}
+                                        </a>
                                         : <p className="product-page__email-unavailable">Email unavailable</p>}
 
                                 </div>

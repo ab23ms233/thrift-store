@@ -23,13 +23,10 @@
     align-items: center;
 }
 
-.brand-mark {
-    background-color: var(--color-primary-soft);
-    padding: var(--space-sm);
+.brand-logo {
+    width: 36px;
+    height: 36px;
     border-radius: var(--radius-sm);
-    color: var(--color-primary);
-    font-weight: bold;
-    font-size: 0.8rem;
 }
 
 .brand-name {
@@ -168,40 +165,12 @@
 }
 
 .anon-user-button {
-    border-radius: var(--radius-sm);
+    height: 35px;
     padding: var(--space-sm) var(--space-md);
-    font-family: "Inter", sans-serif;
-    font-size: 0.85rem;
-    border: none;
-    cursor: pointer;
 }
 
 #header-login-button {
-    background-color: var(--color-primary);
-    color: var(--color-surface);
-    font-weight: 500;
-    transition: all 0.3s ease;
-}
-
-#header-signup-button {
-    background-color: var(--color-primary-soft);
-    color: var(--color-primary);
-    font-weight: 500;
-    transition: all 0.3s ease;
-}
-
-@media (hover: hover) and (pointer: fine) {
-    #header-login-button:hover {
-        background-color: #1d5f4c;
-        transform: translateY(-1px);
-        box-shadow: 0 6px 16px rgba(24, 76, 63, 0.18);
-    }
-
-    #header-signup-button:hover {
-        background-color: #dfece5;
-        transform: translateY(-1px);
-        box-shadow: 0 6px 16px rgba(24, 76, 63, 0.12);
-    }
+    min-height: 35px;
 }
 
 #logout-text {

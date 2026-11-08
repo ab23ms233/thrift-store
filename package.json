@@ -4,6 +4,8 @@
   "private": true,
   "dependencies": {
     "@capacitor/android": "^8.6.0",
+    "@capacitor/app": "^8.1.2",
+    "@capacitor/camera": "^8.2.6",
     "@capacitor/core": "^8.6.0",
     "@supabase/supabase-js": "^2.117.2",
     "@testing-library/dom": "^10.4.2",

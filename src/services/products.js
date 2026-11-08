@@ -209,7 +209,7 @@ export async function editProduct(productId, fields, userId) {
 export async function deleteProduct(productId, userId) {
     const { data: product, error: fetchError } = await supabase
         .from("products")
-        .select("image_path")
+        .select("image_path, image_paths")
         .eq("id", productId)
         .eq("owner_id", userId)
         .single()

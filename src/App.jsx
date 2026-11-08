@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import { BrowserRouter, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 
 import "./App.css"
 import { ProductRoute } from "./pages/ProductPage.jsx";
@@ -22,9 +22,15 @@ import ChangePasswordPage from "./pages/ChangePasswordPage.jsx";
 
 import { getProducts } from "./services/products.js";
 import ProtectedRoute from "./components/common/ProtectedRoute.jsx";
+import { handleAuthUrl } from "./hooks/useAuthDeepLink.js";
+
+import { App as CapacitorApp } from "@capacitor/app";
+import Footer from "./components/common/Footer.jsx";
 
 function AppShell() {
 	const location = useLocation()
+	const navigate = useNavigate()
+
 	const authPages = [
 		"/login",
 		"/forgot-password",
@@ -49,6 +55,69 @@ function AppShell() {
 
 	useEffect(() => {
 		fetchProducts()
+	}, [])
+
+	useEffect(() => {
+		let isMounted = true
+		let listener
+
+		async function registerListener() {
+			const registeredListener = await CapacitorApp.addListener(
+				"appUrlOpen",
+				({ url }) => {
+					handleAuthUrl(url, navigate)
+				}
+			)
+
+			if (isMounted) {
+				listener = registeredListener
+			} else {
+				registeredListener.remove()
+			}
+		}
+
+		registerListener()
+
+		return () => {
+			isMounted = false
+			listener?.remove()
+		}
+	}, [])
+
+	useEffect(() => {
+		let isActive = true
+		let listener
+
+		async function setDeepLinks() {
+			const registeredListener = await CapacitorApp.addListener(
+				"appUrlOpen",
+				({ url }) => {
+					if (isActive) {
+						void handleAuthUrl(url, navigate)
+					}
+				}
+			)
+
+			if (!isActive) {
+				await registeredListener.remove()
+				return
+			}
+
+			listener = registeredListener
+
+			const launch = await CapacitorApp.getLaunchUrl()
+
+			if (isActive && launch?.url) {
+				await handleAuthUrl(launch.url, navigate)
+			}
+		}
+
+		void setDeepLinks()
+
+		return () => {
+			isActive = false
+			void listener?.remove()
+		}
 	}, [])
 
 	return (
@@ -93,10 +162,10 @@ function AppShell() {
 					/>
 
 					<Route
-					path="/reset-password"
-					element={
-						<ResetPasswordPage />
-					} />
+						path="/reset-password"
+						element={
+							<ResetPasswordPage />
+						} />
 				</Route>
 
 				<Route
@@ -140,6 +209,8 @@ function AppShell() {
 				/>
 
 			</Routes>
+
+			<Footer />
 
 			{shouldShowBottomNav && <BotttomNav />}
 		</main>

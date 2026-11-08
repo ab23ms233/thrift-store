@@ -63,18 +63,9 @@ textarea.input-box {
     font-size: 0.7rem;
 }
 
-.image-upload {
-    position: absolute;
-    cursor: pointer;
-    opacity: 0;
-    width: 100%;
-    height: 100%;
-    inset: 0;
-}
-
 .image-upload-info {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     gap: var(--space-sm);
     align-items: center;
 }
@@ -115,6 +106,13 @@ textarea.input-box {
     stroke-linejoin: round;
 }
 
+.image-upload-button-cont {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-lg);
+    width: 100%;
+}
+
 .image-preview {
     position: relative;
     display: flex;
@@ -131,7 +129,7 @@ textarea.input-box {
 
 .image-action-button {
     position: absolute;
-    width: 20px;
+    width: 24px;
     aspect-ratio: 1;
     z-index: 11;
     padding: 0;
@@ -140,6 +138,9 @@ textarea.input-box {
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    border: 1px solid var(--color-border);
+    background-color: var(--color-surface);
+    border-radius: var(--radius-sm);
 }
 
 .remove-image-button {
@@ -151,8 +152,8 @@ textarea.input-box {
 }
 
 .image-action-icon {
-    width: 14px;
-    height: 14px;
+    width: 16px;
+    height: 16px;
 }
 
 .remove-icon {
@@ -161,22 +162,42 @@ textarea.input-box {
 }
 
 .replace-image-button {
-    right: 28px;
+    right: 32px;
     top: 4px;
-    border-radius: var(--space-xs);
-    border: 1px solid var(--color-border);
-    background-color: var(--color-surface);
 }
 
 .replace-icon {
-    fill: var(--color-muted);
-    stroke: var(--color-muted);
+    fill: var(--color-primary);
+    stroke: var(--color-primary);
 }
-@media (pointer: fine) and (hover: hover) {
 
-    .image-upload-area:not(.image-upload-area--error):hover,
-    .image-upload-area:not(.image-upload-area--error):focus-within {
-        border-color: var(--color-primary);
-        background: var(--color-primary-soft);
-    }
+.retake-photo-button svg {
+    stroke: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.retake-photo-button {
+    top: 4px;
+    right: 60px;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+}
+
+.upload-photo-button {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: var(--space-xs);
+    width: 100%;
+    min-width: 0;
+}
+
+.upload-photo-button svg {
+    width: 24px;
+    height: 24px;
+}
+
+.photo-button-text {
+    font-size: 0.75rem;
 }

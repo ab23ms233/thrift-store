@@ -2,6 +2,7 @@ import "./ProductForm.css"
 import "../common/Form.css"
 import { useEffect, useRef, useState } from "react"
 
+import { Camera } from "@capacitor/camera";
 import { getCategories } from "../../services/categories.js";
 import CTAButton from "../button/CTAButton.jsx"
 
@@ -25,6 +26,37 @@ function ImageFrameIcon() {
             <path d="M3 16.71 7.71 12l8 8H4a1 1 0 0 1-1-1v-2.29Z" />
             <path d="m10.51 14.8 4.78-4.8L21 15.73V19a1 1 0 0 1-1 1h-4.29l-5.2-5.2Z" />
             <path d="M10.08 8.29h.1" />
+        </svg>
+    )
+}
+
+function CameraIcon() {
+    return (
+        <svg
+            className="image-upload-icon camera-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+        >
+            <path d="M4 7.5h3l1.5-2h5l1.5 2h3A2 2 0 0 1 20 9.5v8A2 2 0 0 1 18 19.5H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+            <circle cx="12" cy="13.5" r="3.25" stroke="currentColor" strokeWidth="1.8" />
+        </svg>
+    )
+}
+
+function GalleryIcon() {
+    return (
+        <svg
+            className="image-upload-icon gallery-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+        >
+            <rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" strokeWidth="1.8" />
+            <circle cx="8.5" cy="9" r="1.5" fill="currentColor" />
+            <path d="m4 17 4.5-4.5 3.25 3.25 2.25-2.25L20 19" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
     )
 }
@@ -57,6 +89,19 @@ function ReplaceIcon() {
     )
 }
 
+function RetakePhotoButton({ handleTakePhoto, index }) {
+    return (
+        <button
+            type="button"
+            className="image-action-button retake-photo-button"
+            onClick={() => handleTakePhoto(index)}
+            aria-label="Take replacement photo"
+        >
+            <CameraIcon />
+        </button>
+    )
+}
+
 function ReplaceImageButton({ index, openFilePicker }) {
     return (
         <button
@@ -79,6 +124,40 @@ function RemoveImageButton({ index, removeImage }) {
             aria-label="Remove image"
         >
             <RemoveIcon />
+        </button>
+    )
+}
+
+function UploadCameraButton({ handleTakePhoto }) {
+    return (
+        <button
+            type="button"
+            className="upload-photo-button cta-button"
+            onClick={() => handleTakePhoto()}
+            aria-label="Take photo from camera"
+            title="Take photo from camera"
+        >
+            <CameraIcon />
+            <p className="photo-button-text">
+                Upload from camera
+            </p>
+        </button>
+    )
+}
+
+function UploadGalleryButton({ galleryInputRef }) {
+    return (
+        <button
+            type="button"
+            className="upload-photo-button secondary-button"
+            onClick={() => galleryInputRef.current?.click()}
+            aria-label="Upload photo from gallery"
+            title="Upload photo from gallery"
+        >
+            <GalleryIcon />
+            <p className="photo-button-text">
+                Upload from gallery
+            </p>
         </button>
     )
 }
@@ -136,10 +215,48 @@ function ProductForm({
     )
 
     const inputRef = useRef(null)
+    const galleryInputRef = useRef(null)
     const replaceIndexRef = useRef(null)
 
     const location = useLocation()
     const from = location.state?.from || "/"
+
+    const handleTakePhoto = async(indexToReplace) => {
+        try {
+            const photo = await Camera.takePhoto({
+                quality: 85,
+                cameraDirection: "rear"
+            })
+
+            if (!photo.webPath) {
+                throw new Error("Camera did not return a preview path.")
+            }
+
+            const response = await fetch(photo.webPath)
+            const blob = await response.blob()
+
+            const file = new File(
+                [blob],
+                `camera-${crypto.randomUUID()}.jpg`,
+                { type: blob.type || "image/jpeg" }
+            )
+
+            if (validateImages([file])) {
+                return
+            }
+            
+            setImageFiles(previousFiles => {
+                if (indexToReplace !== null) {
+                    return previousFiles.map((image, index) => 
+                        index === indexToReplace ? file : image)
+                }
+
+                return [...previousFiles, file]
+            })
+        } catch (error) {
+            console.error("Unable to take photo:", error)
+        }
+    }
 
     useEffect(() => {
         async function fetchCategories() {
@@ -231,7 +348,7 @@ function ProductForm({
                 error = "Please choose an image file."
                 break
             } else if (file && file.size > MAX_FILE_SIZE * 1024 * 1024) {
-                error = "Image must be 5 MB or smaller."
+                error = `Image must be ${MAX_FILE_SIZE} MB or smaller.`
                 break
             }
         }
@@ -382,6 +499,9 @@ function ProductForm({
                                                 <ReplaceImageButton
                                                     index={index}
                                                     openFilePicker={openFilePicker} />
+                                                <RetakePhotoButton
+                                                    handleTakePhoto={handleTakePhoto}
+                                                    index={index} />
                                             </>
                                         ) : (
                                             <ImageFrameIcon />
@@ -393,17 +513,20 @@ function ProductForm({
                     </div>
 
                     <div className="image-upload-info">
-                        <span className="upload-icon">+</span>
-                        <span className="upload-text">
-                            Tap to upload an image
-                        </span>
+                        <div className="image-upload-button-cont">
+                            <UploadCameraButton handleTakePhoto={handleTakePhoto} />
+                            <UploadGalleryButton galleryInputRef={galleryInputRef} />
+
+                        </div>
+
                         <span className="upload-hint">
                             JPG/PNG/JPEG · Up to {MAX_FILE_SIZE} MB
-
                         </span>
                     </div>
                     <input
+                        ref={galleryInputRef}
                         id="product-image"
+                        hidden
                         className="image-upload"
                         type="file"
                         accept="image/*"
@@ -453,7 +576,7 @@ function ProductForm({
 
             <CTAButton
                 type="submit"
-                isDisabled={Boolean(initialProduct) && !hasChanges || isSubmitting || formSuccess}
+                isDisabled={(Boolean(initialProduct) && !hasChanges) || isSubmitting || formSuccess}
                 text={submitLabel}
                 disabledText={
                     !hasChanges

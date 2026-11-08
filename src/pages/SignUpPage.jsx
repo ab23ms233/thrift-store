@@ -13,6 +13,15 @@ import { FormError, FormStatus, FormSuccess } from "../components/common/FormSta
 import BackButton from "../components/button/BackButton.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import ShowPasswordButton from "../components/button/ShowPasswordButton.jsx";
+import { Capacitor } from "@capacitor/core"
+
+function getAuthRedirectUrl() {
+    if (Capacitor.isNativePlatform()) {
+        return "in.ac.iiserkolkata.thriftstore://auth/callback"
+    }
+
+    return `${window.location.origin}/email-verified`
+}
 
 function SignUpPage() {
     const navigate = useNavigate()
@@ -175,7 +184,7 @@ function SignUpPage() {
                     data: {
                         full_name: name
                     },
-                    emailRedirectTo: `${window.location.origin}/email-verified`
+                    emailRedirectTo: getAuthRedirectUrl()
                 }
             })
 
