@@ -218,7 +218,7 @@ function SignUpPage() {
                 type: "signup",
                 email: email.trim().toLowerCase(),
                 options: {
-                    emailRedirectTo: `${window.location.origin}/email-verified`,
+                    emailRedirectTo: getAuthRedirectUrl(),
                 },
             });
 

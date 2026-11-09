@@ -283,7 +283,7 @@ function ProductForm({
     function handleImageChange(event) {
         const selectedFiles = Array.from(event.target.files || [])
 
-        validateImages(selectedFiles)
+        if (validateImages(selectedFiles)) return
 
         setImageFiles((previousFiles) => {
             const remainingSlots = MAX_FILES - previousFiles.length
