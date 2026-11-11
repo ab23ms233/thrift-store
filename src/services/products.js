@@ -1,4 +1,16 @@
 import { supabase } from "../lib/supabase.js";
+import imageCompression from "browser-image-compression"
+import { INITIAL_QUALITY, MAX_FILE_SIZE_FOR_STORAGE, MAX_IMAGE_DIMENSION } from "../constants.js";
+
+async function compressImage(file) {
+    return imageCompression(file, {
+        maxSizeMB: MAX_FILE_SIZE_FOR_STORAGE,          // target maximum: approximately 200 KB
+        maxWidthOrHeight: MAX_IMAGE_DIMENSION,  // resize large camera images
+        useWebWorker: true,
+        fileType: "image/webp",  // usually much smaller than JPEG
+        initialQuality: INITIAL_QUALITY
+    })
+}
 
 export async function getProducts() {
     const { data, error } = await supabase
@@ -33,12 +45,18 @@ export async function addProduct(product, userId) {
 
     const uploadedImages = await Promise.all(
         product.images.map(async (file) => {
-            const extension = file.name.split(".").pop()
+            const compressedFile = await compressImage(file)
+
+            const extension = compressedFile.type === "image/webp" ? "webp" : "jpg"
             const imagePath = `${userId}/${crypto.randomUUID()}.${extension}`
 
             const { error: uploadError } = await supabase.storage
                 .from("product-images")
-                .upload(imagePath, file)
+                .upload(imagePath, compressedFile, {
+                    contentType: compressedFile.type,
+                    cacheControl: "31536000",
+                    upsert: false
+                })
 
             if (uploadError) throw uploadError
 
@@ -134,15 +152,19 @@ export async function editProduct(productId, fields, userId) {
                 }
             } else {
                 if (!image || typeof image.name !== "string") {
-                    throw new Error("each new product image must be a file.")
+                    throw new Error("Each new product image must be a file.")
                 }
-
-                const fileExt = image.name.split(".").pop()
+                const compressedFile = await compressImage(image)
+                const fileExt = compressedFile.type === "image/webp" ? "webp" : "jpg"
                 imagePath = `${userId}/${crypto.randomUUID()}.${fileExt}`
 
                 const { error: uploadError } = await supabase.storage
                     .from("product-images")
-                    .upload(imagePath, image)
+                    .upload(imagePath, compressedFile, {
+                        contentType: compressedFile.type,
+                        cacheControl: "31536000",
+                        upsert: false
+                    })
 
                 if (uploadError) throw uploadError
 
@@ -198,7 +220,7 @@ export async function editProduct(productId, fields, userId) {
                 .remove(uploadedPaths)
 
             if (cleanupError) {
-                console.error("Could not clean up newly uploaded product images on failure of update row:", cleanupError) 
+                console.error("Could not clean up newly uploaded product images on failure of update row:", cleanupError)
             }
 
             throw error

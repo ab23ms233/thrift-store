@@ -6,6 +6,7 @@ import "../components/common/Form.css"
 import { FormError, FormSuccess } from "../components/common/FormStatus.jsx"
 import PageHeader from "../components/common/PageHeader.jsx"
 import { supabase } from "../lib/supabase.js"
+import { getAuthRedirectUrl } from "../lib/authRedirects.js"
 
 function ForgotPasswordPage() {
     const [email, setEmail] = useState("")
@@ -36,7 +37,7 @@ function ForgotPasswordPage() {
         setIsSending(true)
         try {
             const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, {
-                redirectTo: `${window.location.origin}/reset-password`
+                redirectTo: getAuthRedirectUrl("password-reset")
             })
 
             if (error) {

@@ -58,33 +58,6 @@ function AppShell() {
 	}, [])
 
 	useEffect(() => {
-		let isMounted = true
-		let listener
-
-		async function registerListener() {
-			const registeredListener = await CapacitorApp.addListener(
-				"appUrlOpen",
-				({ url }) => {
-					handleAuthUrl(url, navigate)
-				}
-			)
-
-			if (isMounted) {
-				listener = registeredListener
-			} else {
-				registeredListener.remove()
-			}
-		}
-
-		registerListener()
-
-		return () => {
-			isMounted = false
-			listener?.remove()
-		}
-	}, [])
-
-	useEffect(() => {
 		let isActive = true
 		let listener
 

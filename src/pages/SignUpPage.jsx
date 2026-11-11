@@ -13,15 +13,7 @@ import { FormError, FormStatus, FormSuccess } from "../components/common/FormSta
 import BackButton from "../components/button/BackButton.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import ShowPasswordButton from "../components/button/ShowPasswordButton.jsx";
-import { Capacitor } from "@capacitor/core"
-
-function getAuthRedirectUrl() {
-    if (Capacitor.isNativePlatform()) {
-        return "in.ac.iiserkolkata.thriftstore://auth/callback"
-    }
-
-    return `${window.location.origin}/email-verified`
-}
+import { getAuthRedirectUrl } from "../lib/authRedirects.js"
 
 function SignUpPage() {
     const navigate = useNavigate()
@@ -184,7 +176,7 @@ function SignUpPage() {
                     data: {
                         full_name: name
                     },
-                    emailRedirectTo: getAuthRedirectUrl()
+                    emailRedirectTo: getAuthRedirectUrl("verification")
                 }
             })
 
@@ -218,7 +210,7 @@ function SignUpPage() {
                 type: "signup",
                 email: email.trim().toLowerCase(),
                 options: {
-                    emailRedirectTo: getAuthRedirectUrl(),
+                    emailRedirectTo: getAuthRedirectUrl("verification"),
                 },
             });
 
@@ -345,24 +337,24 @@ function SignUpPage() {
                     <label htmlFor="signup-confirm-password-input">
                         Confirm Password
                     </label>
-                    
+
                     <div className="input-wrapper password-input">
-                    <input
-                        className={`input-box${confirmPasswordError ? " input-box--error" : ""}`}
-                        id="signup-confirm-password-input"
-                        type={showConfirmPassword ? "text" : "password"}
-                        placeholder="Confirm your password..."
-                        disabled={isSubmitting || submitted}
-                        value={confirmPassword}
-                        onChange={(event) => {
-                            setConfirmPassword(event.target.value)
-                            validateConfirmPassword(event.target.value)
-                        }}
-                        onBlur={event => validateConfirmPassword(event.target.value)}
-                        autoComplete="new-password"
-                        aria-invalid={Boolean(confirmPasswordError)}
-                        aria-describedby={confirmPasswordError ? "signup-confirm-password-error" : undefined}
-                        required />
+                        <input
+                            className={`input-box${confirmPasswordError ? " input-box--error" : ""}`}
+                            id="signup-confirm-password-input"
+                            type={showConfirmPassword ? "text" : "password"}
+                            placeholder="Confirm your password..."
+                            disabled={isSubmitting || submitted}
+                            value={confirmPassword}
+                            onChange={(event) => {
+                                setConfirmPassword(event.target.value)
+                                validateConfirmPassword(event.target.value)
+                            }}
+                            onBlur={event => validateConfirmPassword(event.target.value)}
+                            autoComplete="new-password"
+                            aria-invalid={Boolean(confirmPasswordError)}
+                            aria-describedby={confirmPasswordError ? "signup-confirm-password-error" : undefined}
+                            required />
 
                         {
                             confirmPassword && (

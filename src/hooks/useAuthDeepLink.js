@@ -12,18 +12,23 @@ export async function handleAuthUrl(rawUrl, navigate) {
 
     const params = new URLSearchParams(url.search)
     const code = params.get("code")
+    const flow = params.get("flow") || "verification"
     const error = params.get("error")
     const errorDescription = params.get("error_description")
 
+    const destination = flow === "password-reset"
+        ? "/reset-password"
+        : "/email-verified"
+
     if (error) {
-        navigate("/email-verified?error=callback_failed", {
+        navigate(`${destination}?error=callback_failed`, {
             replace: true
         })
         return
     }
 
     if (!code) {
-        navigate("/email-verified?error=missing_code", {
+        navigate(`${destination}?error=missing_code`, {
             replace: true
         })
         return
@@ -33,11 +38,11 @@ export async function handleAuthUrl(rawUrl, navigate) {
         await supabase.auth.exchangeCodeForSession(code)
 
     if (exchangeError) {
-        navigate("/email-verified?error=exchange_failed", {
+        navigate(`${destination}?error=exchange_failed`, {
             replace: true
         })
         return
     }
 
-    navigate("/email-verified", { replace: true })
+    navigate(destination, { replace: true })
 }

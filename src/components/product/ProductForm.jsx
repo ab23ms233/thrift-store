@@ -579,9 +579,9 @@ function ProductForm({
                 isDisabled={(Boolean(initialProduct) && !hasChanges) || isSubmitting || formSuccess}
                 text={submitLabel}
                 disabledText={
-                    !hasChanges
-                        ? submitLabel
-                        : "Saving..."
+                    isSubmitting
+                        ? "Saving..."
+                        : submitLabel
                 }
                 isSuccess={formSuccess}
                 successText={"Saved"} />
