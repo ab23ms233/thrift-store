@@ -246,7 +246,7 @@ function ProductForm({
             }
             
             setImageFiles(previousFiles => {
-                if (indexToReplace !== null) {
+                if (indexToReplace != null) {
                     return previousFiles.map((image, index) => 
                         index === indexToReplace ? file : image)
                 }

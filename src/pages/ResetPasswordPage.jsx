@@ -19,7 +19,9 @@ function ResetPasswordPage() {
     const [errorMessage, setErrorMessage] = useState("")
     const [isUpdating, setIsUpdating] = useState(false)
     const [isUpdated, setIsUpdated] = useState(false)
+
     const [showPassword, setShowPassword] = useState(false)
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
     useEffect(() => {
         if (!isUpdated) return
@@ -35,8 +37,8 @@ function ResetPasswordPage() {
         let error = ""
         if (password !== confirmPassword) {
             error = "Passwords do not match."
-            setConfirmPasswordError(error)
         }
+        setConfirmPassword(error)
         return error
     }
 
@@ -117,7 +119,7 @@ function ResetPasswordPage() {
                     <input
                         className={`input-box${confirmPasswordError ? " input-box--error" : ""}`}
                         id="reset-password-confirm"
-                        type="password"
+                        type={showConfirmPassword ? "text" : "password"}
                         name="confirm-password"
                         value={confirmPassword}
                         onChange={(event) => {
@@ -132,6 +134,14 @@ function ResetPasswordPage() {
                         aria-describedby={confirmPasswordError ? "reset-password-confirm-error" : undefined}
                         required
                     />
+
+                    {
+                        confirmPassword && (
+                            <ShowPasswordButton
+                                showPassword={showConfirmPassword}
+                                setShowPassword={setShowConfirmPassword} />
+                        )
+                    }
                     {confirmPasswordError && (
                         <span className="field-error" id="reset-password-confirm-error">
                             {confirmPasswordError}

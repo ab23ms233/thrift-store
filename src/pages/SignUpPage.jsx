@@ -54,6 +54,8 @@ function SignUpPage() {
         user?.email?.toLowerCase() === email.trim().toLowerCase() &&
         Boolean(user.email_confirmed_at)
 
+    const [userExists, setUserExists] = useState(false)
+
     /* Restore any existing cooldown for this email address */
     useEffect(() => {
         if (!submitted || !resendCooldownKey) return;
@@ -169,7 +171,7 @@ function SignUpPage() {
         }
 
         try {
-            const { error } = await supabase.auth.signUp({
+            const { data, error } = await supabase.auth.signUp({
                 email,
                 password,
                 options: {
@@ -184,6 +186,16 @@ function SignUpPage() {
                 console.error("Error signing up:", error)
                 setErrorMessage(error.message)
                 setIsSubmitting(false)
+                return
+            }
+
+            const existingUser =
+                data?.user &&
+                Array.isArray(data.user.identities) &&
+                data.user.identities.length === 0
+
+            if (existingUser) {
+                setUserExists(true)
                 return
             }
 
@@ -439,13 +451,25 @@ function SignUpPage() {
                                 }
                             </>
                         ) : (
-                            <CTAButton
-                                text={"Create account"}
-                                type={"submit"}
-                                isDisabled={isSubmitting || submitted}
-                                disabledText={"Creating account..."}
-                                successText={"Check email"}
-                                isSuccess={submitted} />
+                            <>
+
+                                {
+                                    userExists && (
+                                        <FormStatus
+                                            message={"Account already exists."}
+                                            description={"An account with this email already exists. Please login instead."} />
+
+                                )
+                                }
+
+                                <CTAButton
+                                    text={"Create account"}
+                                    type={"submit"}
+                                    isDisabled={isSubmitting || submitted}
+                                    disabledText={"Creating account..."}
+                                    successText={"Check email"}
+                                    isSuccess={submitted} />
+                            </>
                         )
                 }
 

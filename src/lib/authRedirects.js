@@ -3,7 +3,7 @@ import { Capacitor } from "@capacitor/core"
 const NATIVE_AUTH_CALLBACK = "in.ac.iiserkolkata.thriftstore://auth/callback"
 
 export function getAuthRedirectUrl(flow) {
-    const webPath = flow === "password-reset"
+    const webPath = flow === "reset-password"
         ? "/reset-password"
         : "/email-verified"
 

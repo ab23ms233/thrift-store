@@ -16,7 +16,7 @@ export async function handleAuthUrl(rawUrl, navigate) {
     const error = params.get("error")
     const errorDescription = params.get("error_description")
 
-    const destination = flow === "password-reset"
+    const destination = flow === "reset-password"
         ? "/reset-password"
         : "/email-verified"
 

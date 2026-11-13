@@ -216,12 +216,7 @@ function Email(product, userProfile) {
     
     Thanks!`
 
-    const emailParams = new URLSearchParams({
-        subject: emailSubject,
-        body: emailBody
-    })
-
-    return emailParams.toString()
+    return `subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`
 }
 
 function ProductPage({

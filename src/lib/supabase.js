@@ -1,3 +1,4 @@
+import { Capacitor } from "@capacitor/core";
 import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = process.env.REACT_APP_SUPABASE_URL
@@ -13,7 +14,7 @@ export const supabase = createClient(
     {
         auth: {
             flowType: "pkce",
-            detectSessionInUrl: false
+            detectSessionInUrl: !Capacitor.isNativePlatform()
         }
     }
 )
