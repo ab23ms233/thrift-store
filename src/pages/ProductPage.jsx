@@ -236,7 +236,6 @@ function ProductPage({
     const [markedAsSold, setMarkedAsSold] = useState(false)
 
     const [userProfile, setUserProfile] = useState(null)
-    const [profileError, setProfileError] = useState(null)
     const [isProfileLoading, setIsProfileLoading] = useState(true)
 
     const [errorMessage, setErrorMessage] = useState("")
@@ -255,9 +254,9 @@ function ProductPage({
                 const profile = await getProfile(product.owner_id)
                 if (isCurrent) setUserProfile(profile)
             } catch (error) {
-                if (isCurrent) setProfileError(error)
+                console.error("Error loading product owner profile:", product.owner_id, error)
             } finally {
-                setIsProfileLoading(false)
+                if (isCurrent) setIsProfileLoading(false)
             }
         }
 
@@ -366,7 +365,7 @@ function ProductPage({
                                 <img
                                     className="product-page__main-image"
                                     src={activeImage}
-                                    alt={`${product.title} - image ${activeImageIndex + 1} of ${images.length}`}
+                                    alt={`${product.title} - ${activeImageIndex + 1} of ${images.length}`}
                                     onLoad={() => setResolvedImage(activeImage)}
                                     onError={() => setResolvedImage(activeImage)} />
                                 {
@@ -439,11 +438,11 @@ function ProductPage({
                                     {ownerPhone
                                         ? <p className="product-page__phone-number">
                                             {ownerPhone} ( 
-                                                <a href={`tel:${ownerPhone}`} target="_blank">
+                                                <a href={`tel:${ownerPhone}`}>
                                                     Call
                                                 </a>
                                                 <span> | </span>
-                                                <a href={`https://wa.me/${ownerPhone.replace(/\D/g, "")}?text=${encodeURIComponent(EnquiryMessage(product, userProfile))}`} target="_blank">
+                                                <a href={`https://wa.me/${ownerPhone.replace(/\D/g, "")}?text=${encodeURIComponent(EnquiryMessage(product, userProfile))}`} target="_blank" rel="noreferrer">
                                                     WhatsApp
                                                 </a> 
                                             )

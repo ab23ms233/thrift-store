@@ -14,8 +14,6 @@ export async function handleAuthUrl(rawUrl, navigate) {
     const code = params.get("code")
     const flow = params.get("flow") || "verification"
     const error = params.get("error")
-    const errorDescription = params.get("error_description")
-
     const destination = flow === "reset-password"
         ? "/reset-password"
         : "/email-verified"

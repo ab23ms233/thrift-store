@@ -91,7 +91,7 @@ function AppShell() {
 			isActive = false
 			void listener?.remove()
 		}
-	}, [])
+	}, [navigate])
 
 	return (
 		<main style={{ paddingBottom: shouldShowBottomNav ? "90px" : undefined }}>

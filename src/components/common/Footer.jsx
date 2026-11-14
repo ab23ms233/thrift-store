@@ -13,11 +13,11 @@ function Footer() {
                         ab23ms233@iiserkol.ac.in
                     </a>
                     <span className="footer-line">|</span>
-                    <a href="" className="footer-link">
+                    <a href="https://forms.gle/koqDkAeDJiTwe1hk7" target="_blank" rel="noreferrer" className="footer-link">
                         Report a bug
                     </a>
                     <span className="footer-line">|</span>
-                    <a href="https://github.com/ab23ms233/thrift-store" target="_blank" className="footer-link">
+                    <a href="https://github.com/ab23ms233/thrift-store" target="_blank" rel="noreferrer" className="footer-link">
                         Source Code
                     </a>
                 </ul>
