@@ -200,10 +200,8 @@ function SuccessMessage({ isProductSold }) {
     )
 }
 
-function Email(product, userProfile) {
-    const emailSubject = `Interest in your listing: ${product.title}`
-
-    const emailBody = `Hi ${userProfile?.full_name ?? "there"},
+function EnquiryMessage(product, userProfile) {
+    return `Hi ${userProfile?.full_name ?? "there"},
     
     I am interested in your listing "${product.title}".
     
@@ -215,6 +213,11 @@ function Email(product, userProfile) {
     Listing: ${window.location.origin}/products/${product.id}
     
     Thanks!`
+}
+
+function Email(product, userProfile) {
+    const emailSubject = `Interest in your listing: ${product.title}`
+    const emailBody = EnquiryMessage(product, userProfile)
 
     return `subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`
 }
@@ -435,7 +438,16 @@ function ProductPage({
                                     <PhoneIcon />
                                     {ownerPhone
                                         ? <p className="product-page__phone-number">
-                                            {ownerPhone}</p>
+                                            {ownerPhone} ( 
+                                                <a href={`tel:${ownerPhone}`} target="_blank">
+                                                    Call
+                                                </a>
+                                                <span> | </span>
+                                                <a href={`https://wa.me/${ownerPhone.replace(/\D/g, "")}?text=${encodeURIComponent(EnquiryMessage(product, userProfile))}`} target="_blank">
+                                                    WhatsApp
+                                                </a> 
+                                            )
+                                        </p>
                                         : <p className="product-page__phone-unavailable">
                                             Phone number unavailable
                                         </p>

@@ -1,8 +1,11 @@
 main {
     width: 100%;
+    min-height: 100vh;
     margin: 0 auto;
     padding: 24px 40px;
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
 }
 
 .header {
@@ -46,4 +49,3 @@ p {
         box-shadow: 0 6px 16px rgba(24, 76, 63, 0.12);
     }
 }
-

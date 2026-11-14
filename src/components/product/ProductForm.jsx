@@ -516,7 +516,6 @@ function ProductForm({
                         <div className="image-upload-button-cont">
                             <UploadCameraButton handleTakePhoto={handleTakePhoto} />
                             <UploadGalleryButton galleryInputRef={galleryInputRef} />
-
                         </div>
 
                         <span className="upload-hint">

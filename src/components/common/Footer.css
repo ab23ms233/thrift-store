@@ -1,9 +1,29 @@
 .app-footer {
-    font-size: 0.8rem;
+    margin-top: auto;
+    font-size: 0.875rem;
     padding-top: 50px;
+    color: var(--color-primary);
+    display: flex;
     text-align: center;
+    flex-direction: column;
+    gap: var(--space-sm);
+    align-items: center;
 }
 
-.developer-email {
+.developed-by {
+    color: var(--color-muted);
+}
+
+.footer-links {
+    display: flex;
+    flex-direction: row;
+    gap: var(--space-sm);
+}
+
+.footer-link {
     color: var(--color-primary);
+    text-decoration: none;
+}
+.footer-line {
+    color: var(--color-muted);
 }
